@@ -15,9 +15,6 @@ public class CarController : MonoBehaviour
     
     [Header("Fitness")]
     public float overallFitness;
-    public float distanceMultiplier = 1.4f;
-    public float avgSpeedMultiplier = 0.2f;
-    public float sensorMultiplier = 1f;
 
     private Vector3 lastPosition;
     private float totalDistanceTravelled;
@@ -149,20 +146,20 @@ public class CarController : MonoBehaviour
             // Going backwards
             totalDistanceTravelled -= Vector3.Distance(transform.position, lastPosition);
         }
-
         avgSpeed = totalDistanceTravelled / timeSinceStart;
+        
+        
+        ta.SetFitnessParameter("Distance", totalDistanceTravelled);
+        ta.SetFitnessParameter("Speed", avgSpeed);
+        ta.SetFitnessParameter("Spacing", CalculateSensorData());
 
-        overallFitness = (totalDistanceTravelled * distanceMultiplier) +
-                         (avgSpeed * avgSpeedMultiplier) + 
-                         CalculateSensorData();
-        
-        
+
         if(timeSinceStart > 20 && overallFitness < 750 || overallFitness < 0)
         {
             Reset();
         }
 
-        if (overallFitness >= 750)
+        /*if (overallFitness >= 750)
         {
             if (overallFitness > trainingData.GetFitness())
             {
@@ -173,7 +170,7 @@ public class CarController : MonoBehaviour
                     Reset();
                 }
             }
-        }
+        }*/
         
         if(timeSinceStart > 3000)
             Reset();
@@ -191,42 +188,9 @@ public class CarController : MonoBehaviour
             totalSensorData += sensors[i];
         }
 
-        return (totalSensorData / sensorCount) * sensorMultiplier;
+        return (totalSensorData / sensorCount);
     }
-// 
-    private void InputSensors()
-    {
-        Transform t = transform;
-        Vector3 left = t.forward - (t.right * 4); // - transform.right - transform.right;
-        Vector3 right = t.forward + (t.right * 4);// + transform.right + transform.right;
 
-        // create an array of rays for each sensor direction
-        
-        
-        Ray r = new Ray(t.position, right);
-        RaycastHit hit;
-        
-        // loop through the rays, checking if they hit anything
-        for (int i = 0; i < sensorCount; i++)
-        {
-            // set the direction of the ray in a semi circle around the car from left to right
-            if (rays != null)
-            {
-                rays[i].origin = transform.position;
-                rays[i].direction = Vector3.Lerp(left, right, i / (float)(sensorCount - 1));
-            }
-            else
-                rays[i] = new Ray(transform.position, Vector3.Lerp(left, right, i / (float)(sensorCount - 1)));
-
-            if (Physics.Raycast(rays[i], out hit))
-            {
-                sensors[i] = hit.distance / 20;
-                //print ("A: " + aSensor);
-                Debug.DrawLine(rays[i].origin, hit.point, Color.red);
-            }
-        }
-    }
-    
     public void MoveCar(float verticalMovement, float horizontalMovement)
     {
         input = Vector3.Lerp(Vector3.zero, new Vector3(0, 0, verticalMovement * 11.4f), 0.02f);

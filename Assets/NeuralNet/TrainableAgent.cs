@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Unity.VisualScripting;
 
@@ -44,7 +45,7 @@ namespace NeuralNet
 		[Space(10), Header("Output Parameters"), SerializeField ,Range(1, 20)]
 		private int outputCount;
 		[SerializeField]
-		private float[] output = null;
+		private float[] output;
 
 		[Header("Fitness"), SerializeField] private float overallFitness;
 		[SerializeField] private float minimumFitnessTarget;
@@ -154,9 +155,12 @@ namespace NeuralNet
 			UpdateOutputParameters();
 			UpdateOutput();
 
+			CalculateOverallFitness();
+
 			// Update the neural network
 			UpdateNeuralNetwork();
 		}
+		
 
 		private void UpdateSensors()
 		{
@@ -376,6 +380,27 @@ namespace NeuralNet
         {
          	neuralNetwork.SetInput(sensors);
         }
+		
+		private void CalculateOverallFitness()
+		{
+			float fitness = 0f;
+			foreach(FitnessParameter parameter in fitnessParameters)
+			{
+				fitness += parameter.GetParameterValue() * parameter.GetParameterMultiplier();
+			}
+			overallFitness = fitness;
+		}
+
+
+
+		public void SetFitnessParameter(string _parameterName, float _parameterValue)
+		{
+			foreach(FitnessParameter t in fitnessParameters.Where(t => t.GetParameterName() == _parameterName))
+			{
+				t.SetParameterValue(_parameterValue);
+				break;
+			}
+		}
 		
 		public float[] GetOutput()
 		{

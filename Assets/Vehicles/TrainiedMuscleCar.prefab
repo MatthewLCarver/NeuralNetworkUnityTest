@@ -131,8 +131,6 @@ GameObject:
   - component: {fileID: 3139528345535257567}
   - component: {fileID: 3139528345205052396}
   - component: {fileID: 3139528345205052392}
-  - component: {fileID: 3139528345205052399}
-  - component: {fileID: 3139528345205052384}
   m_Layer: 6
   m_Name: TrainiedMuscleCar
   m_TagString: Untagged
@@ -242,50 +240,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.25, y: 1, z: 5.29}
   m_Center: {x: 0.000000059604645, y: 0.9, z: 0.13018548}
---- !u!114 &3139528345205052399
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3139528345532781047}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 06ab39b299e0b5a418715a4fae2c58d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  acceleration: 0
-  turningValue: 0
-  timeSinceStart: 0
-  overallFitness: 0
-  distanceMultiplier: 5
-  avgSpeedMultiplier: 15
-  sensorMultiplier: 5
-  sensorCount: 51
-  neuralNetData: {fileID: 11400000, guid: 09d6190c400222b429353bb70fc9182d, type: 2}
-  trainingData: {fileID: 11400000, guid: fff6f9a59a2e6c44f877cf024bb13395, type: 2}
-  trainingTimeInterval: 0
---- !u!114 &3139528345205052384
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3139528345532781047}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d9dd4d63c6c84dc4d84acb2698663be2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inputCount: 0
-  outputCount: 0
-  hiddenLayerCount: 0
-  hiddenNeuronCountList: 
-  activationType: 0
-  computeShader: {fileID: 0}
-  totalEpochs: 10
-  trainingExamples: 10
-  miniBatchSize: 10
 --- !u!1 &3139528345532786951
 GameObject:
   m_ObjectHideFlags: 0
