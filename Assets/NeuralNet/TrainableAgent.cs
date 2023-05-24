@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.VisualScripting;
 
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 namespace NeuralNet
@@ -47,9 +48,11 @@ namespace NeuralNet
 		[SerializeField]
 		private float[] output;
 
-		[Header("Fitness"), SerializeField] private float overallFitness;
+		[Header("Fitness"), SerializeField] private float bestFitness;
+		[SerializeField] private float currentFitness;
 		[SerializeField] private float minimumFitnessTarget;
-		[SerializeField] private float minimumTimeTarget;
+		[SerializeField, Tooltip("In Seconds")] private float minimumTimeTarget;
+		[SerializeField] private float currentTime;
 		[SerializeField] private List<FitnessParameter> fitnessParameters;
 		
 
@@ -57,10 +60,20 @@ namespace NeuralNet
 		private NeuralNetData neuralNetData;
 		[SerializeField] private TrainingData trainingData;
 		[SerializeField] private NeuralNetwork neuralNetwork;
-
+		
+		// create a Reset agent event
+		public UnityEvent resetAgentEvent;
+		
 		private void Awake()
 		{
 			Initialise();
+		}
+		
+		private void OnCollisionEnter(Collision other)
+		{
+			currentFitness = 0f;
+			ResetFitnessParameters();
+			resetAgentEvent?.Invoke();
 		}
 
 		public void Initialise()
@@ -114,7 +127,7 @@ namespace NeuralNet
 			{
 				trainingData.ResetTrainingData();
 				neuralNetwork.Initialise(neuralNetData);
-				trainingData.SetTrainingData(neuralNetwork.GetTrainingData(), overallFitness);
+				trainingData.SetTrainingData(neuralNetwork.GetTrainingData(), bestFitness);
 			}
 			else
 				neuralNetwork.Initialise(trainingData.GetTrainingData(), neuralNetData.GetNeuralNetworkData().learningRate);
@@ -383,14 +396,34 @@ namespace NeuralNet
 		
 		private void CalculateOverallFitness()
 		{
-			float fitness = 0f;
+			currentFitness = 0.0f;
 			foreach(FitnessParameter parameter in fitnessParameters)
 			{
-				fitness += parameter.GetParameterValue() * parameter.GetParameterMultiplier();
+				currentFitness += parameter.GetParameterValue() * parameter.GetParameterMultiplier();
 			}
-			overallFitness = fitness;
+
+			if (currentTime > minimumTimeTarget && currentFitness < minimumFitnessTarget || 
+			    currentFitness < 0)
+			{
+				ResetFitnessParameters();
+				resetAgentEvent?.Invoke();
+			}
+
+			if (currentFitness > bestFitness && currentFitness > minimumFitnessTarget)
+			{
+				if (!float.IsInfinity(currentFitness))
+					bestFitness = currentFitness;
+				trainingData.SetTrainingData(neuralNetwork.GetTrainingData(), bestFitness);
+			}
 		}
 
+		private void ResetFitnessParameters()
+		{
+			foreach(FitnessParameter parameter in fitnessParameters)
+			{
+				parameter.ResetParameterValue();
+			}
+		}
 
 
 		public void SetFitnessParameter(string _parameterName, float _parameterValue)
@@ -420,6 +453,11 @@ namespace NeuralNet
 		public void IncrementEpoch()
 		{
 			neuralNetwork.IncrementEpoch();
+		}
+		
+		public void SetCurrentTime(float _currentTime)
+		{
+			currentTime = _currentTime;
 		}
 	}
 }

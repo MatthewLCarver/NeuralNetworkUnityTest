@@ -33,5 +33,10 @@ namespace NeuralNet
 		public void SetParameterValue(float _parameterValue) => parameterValue = _parameterValue;
 
 		public void SetParameterMultiplier(float _parameterMultiplier) => parameterMultiplier = _parameterMultiplier;
+
+		public void ResetParameterValue()
+		{
+			parameterValue = 0f;
+		}
 	}
 }

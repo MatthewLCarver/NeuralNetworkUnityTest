@@ -51,6 +51,10 @@ public class CarController : MonoBehaviour
         sensorCount = ta.GetInputs();
         
         sensors = new float[sensorCount];
+        
+        ta.resetAgentEvent.AddListener(Reset);
+        
+        ta.Train();
     }
 
     private void OnDestroy()
@@ -68,35 +72,25 @@ public class CarController : MonoBehaviour
         sensors = ta.GetInputSensorArray();
         
         time += Time.deltaTime;
+        timeSinceStart += Time.deltaTime;
+        ta.SetCurrentTime(timeSinceStart);
+        output = ta.GetOutput();
+        
         if (time >= trainingTimeInterval)
         {
             time = 0f;
             //output = neuralNetwork.RunNetwork(sensorArray);
+            lastPosition = transform.position;
+
+            if(output == null)
+                return;
+        
+            acceleration = output[0];
+            turningValue = output[1];
+        
+            MoveCar(acceleration, turningValue);
+            CalculateDistance();
         }
-        
-        output = ta.GetOutput();
-    }
-
-    private void FixedUpdate()
-    {
-        /*InputSensors();*/
-        lastPosition = transform.position;
-        
-        /*// Neural Network Code Here
-        for (int i = 0; i < sensorCount; i++)
-        {
-            sensorArray[i] = sensors[i];
-        }*/
-
-        if(output == null)
-            return;
-        
-        acceleration = output[0];
-        turningValue = output[1];
-        
-        MoveCar(acceleration, turningValue);
-        timeSinceStart += Time.deltaTime;
-        CalculateDistance();
     }
 
     public void Reset()
@@ -118,21 +112,6 @@ public class CarController : MonoBehaviour
         
         ta.Train();
     }
-    
-    private void OnCollisionEnter(Collision other)
-    {
-        overallFitness -= 100f;
-        Reset();
-        /*if (other.gameObject.CompareTag("Wall"))
-        {
-            Death();
-        }*/
-    }
-
-    private void Death()
-    {
-        throw new NotImplementedException();
-    }
 
     private void CalculateDistance()
     {
@@ -148,13 +127,16 @@ public class CarController : MonoBehaviour
         }
         avgSpeed = totalDistanceTravelled / timeSinceStart;
         
-        
-        ta.SetFitnessParameter("Distance", totalDistanceTravelled);
-        ta.SetFitnessParameter("Speed", avgSpeed);
-        ta.SetFitnessParameter("Spacing", CalculateSensorData());
+        if(!Single.IsNaN(totalDistanceTravelled))
+            ta.SetFitnessParameter("Distance", totalDistanceTravelled);
+        if(!Single.IsNaN(avgSpeed))
+            ta.SetFitnessParameter("Speed", avgSpeed);
+        float sensorData = CalculateSensorData();
+        if(!Single.IsNaN(sensorData))
+            ta.SetFitnessParameter("Spacing", sensorData);
 
 
-        if(timeSinceStart > 20 && overallFitness < 750 || overallFitness < 0)
+        /*if(timeSinceStart > 20 && overallFitness < 750 || overallFitness < 0)
         {
             Reset();
         }
@@ -170,10 +152,10 @@ public class CarController : MonoBehaviour
                     Reset();
                 }
             }
-        }*/
+        }#1#
         
         if(timeSinceStart > 3000)
-            Reset();
+            Reset();*/
     }
 
     /// <summary>

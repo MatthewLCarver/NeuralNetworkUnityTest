@@ -70,6 +70,7 @@ namespace NeuralNet
         // Multithreading
         private Thread networkThread;
         private bool networkActive;
+        private float timeScale;
 
         /// <summary>
         /// Initialise the neural network with the data from the NeuralNetData scriptable object for a
@@ -132,7 +133,6 @@ namespace NeuralNet
                 Matrix<float>.Build.Dense(hiddenNeuronList[hiddenLayerCount - 1], outputCount);
             weights.Add(outputWeight);
             biases.Add(Matrix<float>.Build.Dense(1, outputCount));
-            // POTENTIALLY AN ISSUE HERE - TRY ADDING +1 TO HIDDEN LAYER COUNT
             biases[hiddenLayerCount] = biases[hiddenLayerCount].Map(x => Random.Range(-1f, 1f));
             
             // Initialise Weights
@@ -197,19 +197,30 @@ namespace NeuralNet
             // Loop through each weight matrix and randomise the values
             for (int i = 0; i < weights.Count; i++)
             {
-                System.Random r = new System.Random();
-                float randomIndex = (float) (r.NextDecimal() * 2) - 1;
-
-                weights[i] = weights[i].Map(x => randomIndex);
+                // loop through each neuron in the layer
+                for (int j = 0; j < weights[i].RowCount; j++)
+                {
+                    for (int k = 0; k < weights[i].ColumnCount; k++)
+                    {
+                        System.Random r = new System.Random();
+                        float randomIndex = (float) (r.NextDecimal() * 2) - 1;
+                        weights[i][j, k] = randomIndex;
+                    }
+                }
+                /*weights[i] = weights[i].Map(x => randomIndex);*/
             }
         }
-        
+
         /// <summary>
         /// Set the input data for the neural network
         /// </summary>
         /// <param name="_input"></param>
-        public void SetInput(float[] _input) => aiInput = _input;
-        
+        public void SetInput(float[] _input)
+        {
+            aiInput ??= new float[_input.Length];
+            aiInput = _input;
+        }
+
         /// <summary>
         /// Get the output data from the neural network
         /// </summary>
@@ -351,6 +362,7 @@ namespace NeuralNet
             for (int i = 0; i < _trainingData.GetLength(0); i++)
             {
                 // Get a random index
+                Thread.Sleep(1);
                 System.Random r = new System.Random();
                 int randomIndex = r.Next(0, 9);
                 //int randomIndex = Random.Range(0, (int)index.Sample());
@@ -808,6 +820,11 @@ namespace NeuralNet
             trainingData.activationType = activationType;
 
             return trainingData;
+        }
+        
+        public void SetTimeScale(float _timeScale)
+        {
+            timeScale = _timeScale;
         }
     }
 }

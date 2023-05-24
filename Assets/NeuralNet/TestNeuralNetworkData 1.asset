@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60f8e92344f14733ac304e3f71559702, type: 3}
-  m_Name: NeuralNetworkData
+  m_Name: TestNeuralNetworkData 1
   m_EditorClassIdentifier: 
   inputCount: 51
   outputCount: 2
