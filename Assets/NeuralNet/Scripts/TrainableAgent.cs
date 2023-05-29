@@ -155,7 +155,7 @@ namespace NeuralNet
 			neuralNetwork.SetNetworkActive(false);
 		}
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			// Update the sensors
 			UpdateSensorParameters();

@@ -4,7 +4,9 @@ using UnityEngine;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Random;
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Random = UnityEngine.Random;
 
@@ -260,6 +262,8 @@ namespace NeuralNet
                 }
 
                 // Convert the outputLayer to a float array to return
+                if(outputLayer == null)
+                    return;
                 float[] output = new float[outputLayer.ColumnCount];
                 for (int i = 0; i < outputLayer.ColumnCount; i++)
                     output[i] = outputLayer[0, i];
@@ -364,7 +368,7 @@ namespace NeuralNet
                 // Get a random index
                 Thread.Sleep(1);
                 System.Random r = new System.Random();
-                int randomIndex = r.Next(0, 9);
+                int randomIndex = r.Next(0, _trainingData.GetLength(1) - 1);
                 //int randomIndex = Random.Range(0, (int)index.Sample());
 
                 // Swap the training data
@@ -384,6 +388,7 @@ namespace NeuralNet
         /// <param name="_learningRate"></param>
         private void UpdateWeightsAndBiases(TrainingDataStruct[,] _miniBatch, float _learningRate)
         {
+
             // Loop through each training example in the mini-batch
             for(int i = 0; i < _miniBatch.GetLength(0); i++)
             {
@@ -399,6 +404,7 @@ namespace NeuralNet
 
                 // Run the network with the input data
                 float[] output = TestMiniBatch(_miniBatch[i, 0].inputLayerArray.GetData());
+                float mse = GetMSECostOnly(output);
 
                 // Calculate the error for each output neuron
                 float[] errors = new float[outputLayer.ColumnCount];
@@ -437,9 +443,14 @@ namespace NeuralNet
                     }
                 }
 
-                // Calculate the error for each hidden layer
-                float[,] hiddenLayerErrors = new float[hiddenLayers.Count, hiddenLayers[hiddenLayers.Count - 1].ColumnCount];
-                for(int j = hiddenLayers.Count - 1; j >= 0; j--)
+                Matrix<float>[] hiddenLayerErrors = new Matrix<float>[hiddenLayers.Count];
+                for(int j = 0; j < hiddenLayers.Count; j++)
+                {
+                    hiddenLayerErrors[j] = Matrix<float>.Build.Dense(1, hiddenLayers[j].ColumnCount);
+                }
+                
+                // Calculate the error for each hidden layer neuron
+                for(int j = 0; j < hiddenLayers.Count - 1; j++)
                 {
                     for(int k = 0; k < hiddenLayers[j].ColumnCount; k++)
                     {
@@ -448,20 +459,248 @@ namespace NeuralNet
                         {
                             for(int l = 0; l < outputLayer.ColumnCount; l++)
                             {
-                                error += gradients[l] * weights[weights.Count - 1][k, l];
+                                error += deltas[l, k] * weights[weights.Count - 1][k, l];
                             }
                         }
                         else
                         {
                             for(int l = 0; l < hiddenLayers[j + 1].ColumnCount; l++)
                             {
-                                error += hiddenLayerErrors[j + 1, l] * weights[j + 1][k, l];
+                                error += hiddenLayerErrors[j + 1][0, l] * weights[j + 1][k, l];
                             }
                         }
-
-                        hiddenLayerErrors[j, k] = error;
+                        hiddenLayerErrors[j][0, k] = error;
                     }
                 }
+                
+                // Calculate the gradient for each hidden layer neuron
+                Matrix<float>[] hiddenLayerGradients = new Matrix<float>[hiddenLayers.Count];
+                for(int j = 0; j < hiddenLayers.Count; j++)
+                {
+                    hiddenLayerGradients[j] = Matrix<float>.Build.Dense(1, hiddenLayers[j].ColumnCount);
+                }
+                
+                for(int j = 0; j < hiddenLayers.Count; j++)
+                {
+                    for(int k = 0; k < hiddenLayers[j].ColumnCount; k++)
+                    {
+                        hiddenLayerGradients[j][0, k] = hiddenLayerErrors[j][0, k] * GetActivationMethod(hiddenLayers[j][0, k]);
+                    }
+                }
+                
+                // Calculate the deltas for each hidden layer neuron
+                Matrix<float>[] hiddenLayerDeltas = new Matrix<float>[hiddenLayers.Count];
+                for(int j = 0; j < hiddenLayers.Count; j++)
+                {
+                    hiddenLayerDeltas[j] = Matrix<float>.Build.Dense(hiddenLayers[j].ColumnCount, hiddenLayers[j].ColumnCount);
+                }
+                
+                for(int j = 0; j < hiddenLayers.Count; j++)
+                {
+                    for(int k = 0; k < hiddenLayers[j].ColumnCount; k++)
+                    {
+                        for(int l = 0; l < hiddenLayers[j].ColumnCount; l++)
+                        {
+                            hiddenLayerDeltas[j][k, l] = hiddenLayerGradients[j][0, k] * hiddenLayers[j][0, l];
+                        }
+                    }
+                }
+                
+                // Update the weights and biases for the hidden layers
+                for(int j = 0; j < hiddenLayers.Count; j++)
+                {
+                    for(int k = 0; k < hiddenLayers[j].ColumnCount; k++)
+                    {
+                        // Update the biases
+                        biases[j][0, k] += hiddenLayerGradients[j][0, k] * _learningRate;
+
+                        // Update the weights
+                        for(int l = 0; l < hiddenLayers[j].ColumnCount; l++)
+                        {
+                            weights[j][l, k] += hiddenLayerDeltas[j][k, l] * _learningRate;
+                        }
+                    }
+                }
+
+                // Update the weights and biases for the output layer
+                for(int j = 0; j < outputLayer.ColumnCount; j++)
+                {
+                    // Update the biases
+                    biases[biases.Count - 1][0, j] += gradients[j] * _learningRate;
+
+                    // Update the weights
+                    for(int k = 0; k < hiddenLayers[hiddenLayers.Count - 1].ColumnCount; k++)
+                    {
+                        weights[weights.Count - 1][k, j] += deltas[j, k] * _learningRate;
+                    }
+                }
+
+                // Calculate the new MSE
+                float newMSE = 0;
+                for(int j = 0; j < outputLayer.ColumnCount; j++)
+                {
+                    newMSE = GetMSECostOnly(output);
+                }
+                
+                // Check if the MSE has increased
+                if(mse > newMSE)
+                {
+                    // If it has, decrease the learning rate
+                    _learningRate *= 0.5f;
+                }
+                else
+                {
+                    // If it hasn't, increase the learning rate
+                    _learningRate *= 1.05f;
+                    
+                    for(int j = 0; j < outputLayer.ColumnCount; j++)
+                    {
+                        for(int n = 0; n < hiddenLayers.Count; n++)
+                        {
+                            // Revert the biases
+                            biases[n][0, j] -= hiddenLayerGradients[n][0, j] * _learningRate;
+
+                            // Revert the weights
+                            for(int k = 0; k < hiddenLayers[n].RowCount; k++)
+                            {
+                                weights[n][k, j] -= hiddenLayerDeltas[n][k, j] * _learningRate;
+                            }
+                        }
+                    }
+                }
+
+                /*ConcurrentDictionary<int, float[,]> hiddenLayerErrors = new ConcurrentDictionary<int, float[,]>();
+                Parallel.For(0, hiddenLayers.Count, index =>
+                {
+                    hiddenLayerErrors.TryAdd(index, new float[1, hiddenLayers[index].ColumnCount]);
+                });
+
+                // Calculate the error for each hidden layer neuron
+                Parallel.For(0, hiddenLayers.Count - 1, index =>
+                {
+                    for (int j = 0; j < hiddenLayers[index].ColumnCount; j++)
+                    {
+                        float error = 0;
+                        if (index == hiddenLayers.Count - 1)
+                        {
+                            for (int k = 0; k < outputLayer.ColumnCount; k++)
+                            {
+                                error += deltas[k, j] * weights[weights.Count - 1][j, k];
+                            }
+                        }
+                        else
+                        {
+                            for (int k = 0; k < hiddenLayers[index + 1].ColumnCount; k++)
+                            {
+                                error += hiddenLayerErrors[index + 1][k, j] * weights[index + 1][j, k];
+                            }
+                        }
+                        hiddenLayerErrors[index][0, j] = error;
+                    }
+                });
+                
+                // Calculate the gradient for each hidden layer neuron
+                ConcurrentDictionary<int, float[,]> hiddenLayerGradients = new ConcurrentDictionary<int, float[,]>();
+                for(int index = 0; index < hiddenLayers.Count; index++)
+                    hiddenLayerGradients[index] = 
+                        new float[hiddenLayers[index].RowCount, hiddenLayers[index].ColumnCount];
+                
+                // Calculate the gradient for each hidden layer neuron
+                Parallel.For(0, hiddenLayers.Count - 1, index =>
+                {
+                    for (int j = 0; j < hiddenLayers[index].ColumnCount; j++)
+                    {
+                        hiddenLayerGradients[index][0, j] = hiddenLayerErrors[index][0, j] * 
+                                                            GetActivationMethod(hiddenLayers[index][0, j]);
+                    }
+                });
+                
+                // Calculate the deltas for each hidden layer neuron
+                ConcurrentDictionary<int, float[,]> hiddenLayerDeltas = new ConcurrentDictionary<int, float[,]>();
+                for(int index = 0; index < hiddenLayers.Count; index++)
+                    hiddenLayerDeltas[index] = 
+                        new float[hiddenLayers[index].RowCount, hiddenLayers[index].ColumnCount];
+                
+                // Calculate the deltas for each hidden layer neuron
+                Parallel.For(0, hiddenLayers.Count - 1, index =>
+                {
+                    for (int j = 0; j < hiddenLayers[index].ColumnCount; j++)
+                    {
+                        for (int k = 0; k < hiddenLayers[index].RowCount; k++)
+                        {
+                            hiddenLayerDeltas[index][k, j] = hiddenLayerGradients[index][k, j] * 
+                                                                hiddenLayers[index][k, j];
+                        }
+                    }
+                });
+                
+                // Update the weights and biases for each hidden layer
+                Parallel.For(0, hiddenLayers.Count - 1, index =>
+                {
+                    for (int j = 0; j < hiddenLayers[index].ColumnCount; j++)
+                    {
+                        // Update the biases
+                        biases[index][0, j] += hiddenLayerGradients[index][0, j] * _learningRate;
+
+                        // Update the weights
+                        for (int k = 0; k < hiddenLayers[index].RowCount; k++)
+                        {
+                            weights[index][k, j] += hiddenLayerDeltas[index][k, j] * _learningRate;
+                        }
+                    }
+                });
+                
+                // Update the weights and biases for the output layer
+                for (int j = 0; j < outputLayer.ColumnCount; j++)
+                {
+                    // Update the biases
+                    biases[biases.Count - 1][0, j] += gradients[j] * _learningRate;
+
+                    // Update the weights
+                    for (int k = 0; k < hiddenLayers[hiddenLayers.Count - 1].ColumnCount; k++)
+                    {
+                        weights[weights.Count - 1][k, j] += deltas[j, k] * _learningRate;
+                    }
+                }
+                
+                // Calculate the new MSE
+                float newMSE = GetMSECostOnly(output);
+                
+                // If the new MSE is greater than the old MSE, revert the changes
+                if (newMSE > mse)
+                {
+                    Debug.Log($"Old MSE: {mse} | New MSE: {newMSE} | Reverting changes...");
+                    
+                    // Revert the weights and biases for the output layer
+                    for (int j = 0; j < outputLayer.ColumnCount; j++)
+                    {
+                        // Revert the biases
+                        biases[biases.Count - 1][0, j] -= gradients[j] * _learningRate;
+
+                        // Revert the weights
+                        for (int k = 0; k < hiddenLayers[hiddenLayers.Count - 1].ColumnCount; k++)
+                        {
+                            weights[weights.Count - 1][k, j] -= deltas[j, k] * _learningRate;
+                        }
+                    }
+                    
+                    // Revert the weights and biases for each hidden layer
+                    for (int n = 0; n < hiddenLayers.Count; n++)
+                    {
+                        for (int j = 0; j < hiddenLayers[n].ColumnCount; j++)
+                        {
+                            // Revert the biases
+                            biases[n][0, j] -= hiddenLayerGradients[n][0, j] * _learningRate;
+
+                            // Revert the weights
+                            for (int k = 0; k < hiddenLayers[n].RowCount; k++)
+                            {
+                                weights[n][k, j] -= hiddenLayerDeltas[n][k, j] * _learningRate;
+                            }
+                        }
+                    }
+                }*/
+                Debug.Log($"Old MSE: {mse} | New MSE: {newMSE} | ");
             }
         }
 
