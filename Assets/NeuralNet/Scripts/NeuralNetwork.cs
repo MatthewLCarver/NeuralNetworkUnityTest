@@ -247,19 +247,9 @@ namespace NeuralNet
                 {
                     inputLayer[0, i] = aiInput[i];
                 }
-                
-                /*if (!ValidateData())
-                    return;*/
 
                 // Forward Feed the data through the network
-                // Loop through each layer and activate the neurons whilst passing the data through the weights and biases
-                bool isComplete = false;
-                for (int i = 0; i < totalLayers; i++)
-                {
-                    ActivateNeurons(i, ref isComplete);
-                    if (isComplete)
-                        break;
-                }
+                ForwardFeed();
 
                 // Convert the outputLayer to a float array to return
                 if(outputLayer == null)
@@ -277,6 +267,41 @@ namespace NeuralNet
                 aiOutput = output;
             }
         }
+
+        /// <summary>
+        /// Loops through each layer and activate the neurons whilst passing the data through the weights and biases
+        /// </summary>
+        private void ForwardFeed()
+        {
+            bool isComplete = false;
+            for (int i = 0; i < totalLayers; i++)
+            {
+                ActivateNeurons(i, ref isComplete);
+                if (isComplete)
+                    break;
+            }
+        }
+
+        private float[] TestRevisedMSEOutput()
+        {
+            // initialise input layer with the raw data
+            for (int i = 0; i < inputCount; i++)
+            {
+                inputLayer[0, i] = aiInput[i];
+            }
+
+            // Forward Feed the data through the network
+            ForwardFeed();
+            
+            // Convert the outputLayer to a float array to return
+            if(outputLayer == null)
+                return null;
+            float[] output = new float[outputLayer.ColumnCount];
+            for (int i = 0; i < outputLayer.ColumnCount; i++)
+                output[i] = outputLayer[0, i];
+
+            return output;
+        }
         
         /// <summary>
         /// Runs the network with the given input data and returns the output data as a float array to be used for
@@ -292,10 +317,6 @@ namespace NeuralNet
                 inputLayer[0, i] = _miniBatch[i];
             }
             
-            /*if (!ValidateData())
-                return aiOutput;
-                */
-
             // Forward Feed the data through the network
             // Loop through each layer and activate the neurons whilst passing the data through the weights and biases
             bool isComplete = false;
@@ -535,38 +556,24 @@ namespace NeuralNet
                     }
                 }
 
+                output = TestRevisedMSEOutput();
+                
                 // Calculate the new MSE
                 float newMSE = 0;
-                for(int j = 0; j < outputLayer.ColumnCount; j++)
-                {
+                if (output != null)
                     newMSE = GetMSECostOnly(output);
-                }
-                
+                else
+                    RevertWeightsAndBiases(hiddenLayerGradients, hiddenLayerDeltas, _learningRate);
+
                 // Check if the MSE has increased
                 if(mse > newMSE)
-                {
                     // If it has, decrease the learning rate
                     _learningRate *= 0.5f;
-                }
                 else
                 {
                     // If it hasn't, increase the learning rate
                     _learningRate *= 1.05f;
-                    
-                    for(int j = 0; j < outputLayer.ColumnCount; j++)
-                    {
-                        for(int n = 0; n < hiddenLayers.Count; n++)
-                        {
-                            // Revert the biases
-                            biases[n][0, j] -= hiddenLayerGradients[n][0, j] * _learningRate;
-
-                            // Revert the weights
-                            for(int k = 0; k < hiddenLayers[n].RowCount; k++)
-                            {
-                                weights[n][k, j] -= hiddenLayerDeltas[n][k, j] * _learningRate;
-                            }
-                        }
-                    }
+                    RevertWeightsAndBiases(hiddenLayerGradients, hiddenLayerDeltas, _learningRate);
                 }
 
                 /*ConcurrentDictionary<int, float[,]> hiddenLayerErrors = new ConcurrentDictionary<int, float[,]>();
@@ -701,6 +708,24 @@ namespace NeuralNet
                     }
                 }*/
                 Debug.Log($"Old MSE: {mse} | New MSE: {newMSE} | ");
+            }
+        }
+
+        private void RevertWeightsAndBiases(Matrix<float>[] _hiddenLayerGradients, Matrix<float>[] _hiddenLayerDeltas, float _learningRate)
+        {
+            for(int j = 0; j < outputLayer.ColumnCount; j++)
+            {
+                for(int n = 0; n < hiddenLayers.Count; n++)
+                {
+                    // Revert the biases
+                    biases[n][0, j] -= _hiddenLayerGradients[n][0, j] * _learningRate;
+
+                    // Revert the weights
+                    for(int k = 0; k < hiddenLayers[n].RowCount; k++)
+                    {
+                        weights[n][k, j] -= _hiddenLayerDeltas[n][k, j] * _learningRate;
+                    }
+                }
             }
         }
 
@@ -867,16 +892,15 @@ namespace NeuralNet
                 
                 // Middle Layers
                 default:
-                    for (int i = 0; i < hiddenLayers[_currentLayer - 1].ColumnCount; i++)
+                    for(int i = 0; i < hiddenLayers[_currentLayer - 1].ColumnCount; i++)
                     {
                         hiddenLayers[layerAdjustment][0, i] = 
                             GetActivationMethod(((hiddenLayers[layerAdjustment - 1] * 
                                                   weights[layerAdjustment])[0, i] + 
                                                  biases[layerAdjustment][0, i]));
                     }
-                    if(_currentLayer == totalLayers - 1)
-                        _isComplete = true;
                     break;
+                    
             }
         }
 
