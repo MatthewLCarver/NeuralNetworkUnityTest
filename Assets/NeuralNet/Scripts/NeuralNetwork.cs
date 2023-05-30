@@ -8,6 +8,8 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
+using UnityEngine.Events;
+
 using Random = UnityEngine.Random;
 
 
@@ -64,16 +66,19 @@ namespace NeuralNet
         [SerializeField]
         private int miniBatchSize = 0;
         
+        [SerializeField, Tooltip("Experimental, do this only once a baseline training data model has been established")]
+        private bool toggleWeightsAndBiasesRevision = false;
+        
         
         // Inputs and Outputs
         private float[] aiInput;
         private float[] aiOutput;
         
         // Multithreading
-        private Thread networkThread;
+        private Thread networkThread = null;
         private bool networkActive;
         private float timeScale;
-
+        
         /// <summary>
         /// Initialise the neural network with the data from the NeuralNetData scriptable object for a
         /// new neural network
@@ -178,11 +183,30 @@ namespace NeuralNet
             aiInput = new float[inputCount];
         }
 
-        public void StartThreading()
+        private void InitialiseThread()
         {
             networkThread = new Thread(RunNetwork);
-            networkThread.Start();
         }
+
+        public void StartThreading()
+        {
+
+            InitialiseThread();
+            networkThread.Start();
+            
+        }
+        
+        // slow
+        /*public void StartThreading()
+        {
+            if(networkThread == new Thread(RunNetwork))
+                networkThread.Start();
+            else
+            {
+                InitialiseThread();
+                networkThread.Start();
+            }
+        }*/
 
         public void StopThreading()
         {
@@ -242,29 +266,39 @@ namespace NeuralNet
         {
             while (networkActive)
             {
-                // initialise input layer with the raw data
-                for (int i = 0; i < inputCount; i++)
-                {
-                    inputLayer[0, i] = aiInput[i];
+                try {
+                    // initialise input layer with the raw data
+                    for (int i = 0; i < inputCount; i++)
+                    {
+                        inputLayer[0, i] = aiInput[i];
+                    }
+
+                    // Forward Feed the data through the network
+                    ForwardFeed();
+
+                    // Convert the outputLayer to a float array to return
+                    if(outputLayer == null)
+                        return;
+                    float[] output = new float[outputLayer.ColumnCount];
+                    for (int i = 0; i < outputLayer.ColumnCount; i++)
+                        output[i] = outputLayer[0, i];
+
+                    // Mini-batch Gradient Descent
+                    //output = GradientDescent(output);
+                    if(currentEpoch >= totalEpochs)
+                    {
+                        output = MiniBatchGradientDescent(trainingExamples, ConvertTrainingDataList(trainingDataList),
+                                                          miniBatchSize, learningRate, currentEpoch);
+                    }
+
+                    aiOutput = output;
                 }
+                catch(ThreadInterruptedException e)
+                {
+                    Console.WriteLine(e);
 
-                // Forward Feed the data through the network
-                ForwardFeed();
-
-                // Convert the outputLayer to a float array to return
-                if(outputLayer == null)
-                    return;
-                float[] output = new float[outputLayer.ColumnCount];
-                for (int i = 0; i < outputLayer.ColumnCount; i++)
-                    output[i] = outputLayer[0, i];
-
-                // Mini-batch Gradient Descent
-                //output = GradientDescent(output);
-                if (currentEpoch >= totalEpochs)
-                    output = MiniBatchGradientDescent(trainingExamples, ConvertTrainingDataList(trainingDataList),
-                        miniBatchSize, learningRate, currentEpoch);
-
-                aiOutput = output;
+                    throw;
+                }
             }
         }
 
@@ -346,6 +380,8 @@ namespace NeuralNet
         /// <returns></returns>
         public float[] MiniBatchGradientDescent(int _trainingExamples, TrainingDataStruct[,] _trainingData, int _miniBatchSize, float _learningRate, int _epochs)
         {
+            ResetEpoch();
+            
             // Loop through each epoch
             for (int i = 0; i < _epochs; i++)
             {
@@ -556,7 +592,8 @@ namespace NeuralNet
                     }
                 }
 
-                output = TestRevisedMSEOutput();
+                if(toggleWeightsAndBiasesRevision)
+                    output = TestRevisedMSEOutput();
                 
                 // Calculate the new MSE
                 float newMSE = 0;
@@ -567,8 +604,11 @@ namespace NeuralNet
 
                 // Check if the MSE has increased
                 if(mse > newMSE)
+                {
                     // If it has, decrease the learning rate
                     _learningRate *= 0.5f;
+//                    Debug.Log($"Old MSE: {mse} | New MSE: {newMSE} | ");
+                }
                 else
                 {
                     // If it hasn't, increase the learning rate
@@ -707,7 +747,6 @@ namespace NeuralNet
                         }
                     }
                 }*/
-                Debug.Log($"Old MSE: {mse} | New MSE: {newMSE} | ");
             }
         }
 
@@ -989,8 +1028,6 @@ namespace NeuralNet
         public void IncrementEpoch()
         {
             currentEpoch++;
-            if(currentEpoch > totalEpochs)
-                ResetEpoch();
             trainingDataList.Add(GetTrainingData());
         }
         

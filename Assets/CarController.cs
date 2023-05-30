@@ -118,7 +118,8 @@ public class CarController : MonoBehaviour
         if (Vector3.Dot(transform.forward, (transform.position - lastPosition)) > 0)
         {
             // Going forward
-            totalDistanceTravelled += Vector3.Distance(transform.position, lastPosition);
+            float distanceFromStart = Vector3.Distance(transform.position, startPosition);
+            totalDistanceTravelled += (Vector3.Distance(transform.position, lastPosition) * distanceFromStart);
         }
         else
         {
@@ -134,28 +135,7 @@ public class CarController : MonoBehaviour
         float sensorData = CalculateSensorData();
         if(!Single.IsNaN(sensorData))
             ta.SetFitnessParameter("Spacing", sensorData);
-
-
-        /*if(timeSinceStart > 20 && overallFitness < 750 || overallFitness < 0)
-        {
-            Reset();
-        }
-
-        /*if (overallFitness >= 750)
-        {
-            if (overallFitness > trainingData.GetFitness())
-            {
-                // Save the neural network
-                trainingData.SetTrainingData(neuralNetwork.GetTrainingData(), overallFitness);
-                if (overallFitness >= 100000000)
-                {
-                    Reset();
-                }
-            }
-        }#1#
         
-        if(timeSinceStart > 3000)
-            Reset();*/
     }
 
     /// <summary>

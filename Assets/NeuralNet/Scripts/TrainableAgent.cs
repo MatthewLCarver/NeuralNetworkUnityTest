@@ -61,9 +61,8 @@ namespace NeuralNet
 		[SerializeField] private TrainingData trainingData;
 		[SerializeField] private NeuralNetwork neuralNetwork;
 		
-		// create a Reset agent event
 		public UnityEvent resetAgentEvent;
-		
+
 		private void Awake()
 		{
 			Initialise();
@@ -131,6 +130,7 @@ namespace NeuralNet
 			}
 			else
 				neuralNetwork.Initialise(trainingData.GetTrainingData(), neuralNetData.GetNeuralNetworkData().learningRate);
+			
 		}
 
 		public void Train()
@@ -364,11 +364,6 @@ namespace NeuralNet
 			}
 		}
 
-
-
-
-
-
 		private void UpdateOutputParameters()
 		{
 			if(outputCount != output.Length)
@@ -402,19 +397,23 @@ namespace NeuralNet
 				currentFitness += parameter.GetParameterValue() * parameter.GetParameterMultiplier();
 			}
 
-			if (currentTime > minimumTimeTarget && currentFitness < minimumFitnessTarget || 
-			    currentFitness < 0)
-			{
-				ResetFitnessParameters();
-				resetAgentEvent?.Invoke();
-			}
+			
 
 			if (currentFitness > bestFitness && currentFitness > minimumFitnessTarget)
 			{
 				if (!float.IsInfinity(currentFitness))
 					bestFitness = currentFitness;
 				trainingData.SetTrainingData(neuralNetwork.GetTrainingData(), bestFitness);
+
+				return;
 			}
+			
+			if (currentTime > minimumTimeTarget && currentFitness < minimumFitnessTarget || 
+             			    currentFitness < 0)
+            {
+             	ResetFitnessParameters();
+             	resetAgentEvent?.Invoke();
+            }
 		}
 
 		private void ResetFitnessParameters()
