@@ -3,14 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using MathNet.Numerics.LinearAlgebra;
 
-using System.IO;
-
-using Unity.VisualScripting;
-
-using UnityEditor;
-using UnityEngine.Rendering.Universal;
-using Newtonsoft.Json;
-
 using SaveLoad;
 
 namespace NeuralNet
@@ -18,24 +10,73 @@ namespace NeuralNet
     [CreateAssetMenu(fileName = "TrainingData", menuName = "Neural Network/Training Data", order = 0)]
     public class TrainingData : ScriptableObject
     {
-        [SerializeField]
+        [SerializeField,
+        Tooltip("Contains the float data of the neural network.")]
         private TrainingDataStruct data;
+        
+        /// <summary>
+        /// Contains the base data of the neural network. 
+        /// </summary>
+        private NeuralNetData nnData;
+        
+        /// <summary>
+        /// The structured model data of the neural network that can be saved and loaded.
+        /// </summary>
+        [SerializeField]
+        private TrainingModel trainingModel;
+        
+        /// <summary>
+        /// The agent that is using this training data.
+        /// </summary>
+        private TrainableAgent agent;
+        
+        /// <summary>
+        /// The name of the file that will be saved.
+        /// </summary>
         private string fileName = "FileName";
 
+        /// <summary>
+        /// Sets the data of the neural network when data is individually given.
+        /// </summary>
+        /// <param name="_inputLayer"></param>
+        /// <param name="_hiddenLayers"></param>
+        /// <param name="_outputLayer"></param>
+        /// <param name="_weights"></param>
+        /// <param name="_biases"></param>
+        /// <param name="_activationType"></param>
+        /// <param name="_learningRate"></param>
+        /// <param name="_agent"></param>
         public void SetTrainingData(Matrix<float> _inputLayer, List<Matrix<float>> _hiddenLayers, 
                                     Matrix<float> _outputLayer, List<Matrix<float>> _weights, List<Matrix<float>> _biases,
-                                    ActivationType _activationType, float _learningRate = 0.1f)
+                                    ActivationType _activationType, float _learningRate = 0.1f, TrainableAgent _agent = null)
         {
+            agent = _agent;
             data.SetData(_inputLayer, _hiddenLayers, _outputLayer, _weights, _biases, _learningRate, _activationType);
         }
         
-        public void SetTrainingData(TrainingDataStruct _data, float _fitness)
+        /// <summary>
+        /// Sets the data of the neural network when data is given as a TrainingDataStruct.
+        /// </summary>
+        /// <param name="_data"></param>
+        /// <param name="_fitness"></param>
+        /// <param name="_agent"></param>
+        public void SetTrainingData(TrainingDataStruct _data, float _fitness, TrainableAgent _agent = null)
         {
+            agent = _agent;
             data.SetData(_data.inputLayer, _data.hiddenLayers, _data.outputLayer, _data.weights, _data.biases,
                 _fitness, _data.activationType);
         }
-
-
+        
+        /// <summary>
+        /// Returns the data of the neural network when passed as a reference.
+        /// </summary>
+        /// <param name="_inputLayer"></param>
+        /// <param name="_hiddenLayers"></param>
+        /// <param name="_outputLayer"></param>
+        /// <param name="_weights"></param>
+        /// <param name="_biases"></param>
+        /// <param name="_fitness"></param>
+        /// <param name="_activationType"></param>
         public void GetTrainingData(out Matrix<float> _inputLayer, out List<Matrix<float>> _hiddenLayers, 
                                     out Matrix<float> _outputLayer, out List<Matrix<float>> _weights, 
                                     out List<Matrix<float>> _biases, out float _fitness, out ActivationType _activationType)
@@ -49,12 +90,19 @@ namespace NeuralNet
             _activationType = data.activationType;
         }
         
+        /// <summary>
+        /// Calculates the data of the neural network and returns it as a TrainingDataStruct.
+        /// </summary>
+        /// <returns></returns>
         public TrainingDataStruct GetTrainingData()
         {
             CalculateData();
             return data;
         }
 
+        /// <summary>
+        /// Calculates the data of the neural network from the Layer arrays.
+        /// </summary>
         private void CalculateData()
         {
             data.inputLayer = Matrix<float>.Build.DenseOfArray(new float[1, data.inputLayerArray.GetData().Length]);
@@ -63,7 +111,6 @@ namespace NeuralNet
                 data.inputLayer[0, i] = data.inputLayerArray.GetData()[i];
             }
             
-            // Create a new matrix
             data.hiddenLayers = new List<Matrix<float>>();
             // loop through each hidden layer in the array
             foreach (Layer hiddenLayer in data.hiddenLayerArray)
@@ -123,98 +170,302 @@ namespace NeuralNet
             }
         }
 
+        /// <summary>
+        /// Returns a bool to check if the training data is empty by using the fitness value.
+        /// </summary>
+        /// <returns></returns>
         public bool IsTrainingDataEmpty()
         {
             return data.fitness == 0;
         }
         
+        /// <summary>
+        /// Returns the file name of the training data.
+        /// </summary>
+        /// <returns></returns>
         public string GetFileName()
         {
             return fileName;
         }
 
+        /// <summary>
+        /// Sets the file name of the training data.
+        /// </summary>
+        /// <param name="_fileName"></param>
         public void SetFileName(string _fileName)
         {
             fileName = _fileName;
         }
 
+        /// <summary>
+        /// Returns the fitness of the training data.
+        /// </summary>
+        /// <returns></returns>
         public float GetFitness()
         {
             return data.fitness;
         }
+        
+        /// <summary>
+        /// Clears the training data in the TrainingDataStruct
+        /// </summary>
         public void ResetTrainingData()
         {
             // clear all data
             data.ClearData();
         }
         
+        /// <summary>
+        /// Sets the neural network data of the training data.
+        /// Updates the training model struct.
+        /// Saves the training model as a JSON file.
+        /// </summary>
         public void SaveTrainingData()
         {
-            // use the SaveLoadManager to save the training data
-            SaveLoadManager.Instance.Save<TrainingDataStruct>(data, fileName);
+            SetNeuralNetworkData(agent.GetNeuralNetData());
+            trainingModel = new TrainingModel(nnData, data);
+            SaveLoadManager.Instance.Save<TrainingModel>(trainingModel.GetTrainingModel(), fileName);
         }
         
+        /// <summary>
+        /// Loads the training model from a JSON file and converts it to training data for use in the neural network.
+        /// </summary>
         public void LoadTrainingData()
         {
-            // use the SaveLoadManager to load the training data
-            SaveLoadManager.Instance.Load(ref data, fileName);
+            SaveLoadManager.Instance.Load(ref trainingModel, fileName);
+            ConvertTrainingModelToTrainingData();
         }
-    }
-    
-    [CustomEditor(typeof(TrainingData))]
-    public class TrainingDataEditor : Editor
-    {
-        public override void OnInspectorGUI()
+
+        /// <summary>
+        /// Converts the training model to training data for use in the neural network.
+        /// </summary>
+        private void ConvertTrainingModelToTrainingData()
         {
-            base.OnInspectorGUI();
-            TrainingData trainingData = (TrainingData) target;
-            if (GUILayout.Button("Reset Training Data"))
+            // set the data of the training data struct to the values of the training model
+            data.fitness = trainingModel.fitness;
+            data.activationType = trainingModel.activationType;
+            
+            data.inputLayerArray = new Layer();
+            data.inputLayerArray.SetNeuronLength(trainingModel.inputLayerDimensions);
+            
+            data.hiddenLayers = new List<Matrix<float>>();
+            data.hiddenLayerArray = new List<Layer>();
+            foreach (float[] hiddenLayer in trainingModel.hiddenLayers)
             {
-                trainingData.ResetTrainingData();
+                // create the matrix for the hidden layer
+                Matrix<float> hiddenLayerMatrix = Matrix<float>.Build.DenseOfArray(new float[1, hiddenLayer.Length]);
+                // nested loop to loop through each row and column of the matrix
+                for (int i = 0; i < hiddenLayer.Length; i++)
+                {
+                    // set the value of the matrix to the value of the neuron
+                    hiddenLayerMatrix[0, i] = hiddenLayer[i];
+                }
+                Layer hiddenLayerArray = new Layer();
+                hiddenLayerArray.SetNeuronLength(hiddenLayer.Length);
+                data.hiddenLayerArray.Add(hiddenLayerArray);
             }
             
-            // create a editable string text field for the file name
-            trainingData.SetFileName(EditorGUILayout.TextField("File Name", trainingData.GetFileName()));
-            //(EditorGUILayout.TextField("File Name", trainingData.GetFileName()));
+            data.weights = new List<Matrix<float>>();
+            data.weightsLayerArray = new List<Layer>();
+            for(int i = 0; i < trainingModel.weights.Count; i++)
+            {
+                Matrix<float> weightMatrix = Matrix<float>.Build.DenseOfArray(trainingModel.weights[i]);
+                Layer weightLayer = new Layer();
+                weightLayer.SetData(weightMatrix);
+                data.weightsLayerArray.Add(weightLayer);
+            }
+            
+            data.biases = new List<Matrix<float>>();
+            data.biasesLayerArray = new List<Layer>();
+            for(int i = 0; i < trainingModel.biases.Count; i++)
+            {
+                Matrix<float> biasMatrix = Matrix<float>.Build.DenseOfArray(trainingModel.biases[i]);
+                Layer biasLayer = new Layer();
+                biasLayer.SetData(biasMatrix);
+                data.biasesLayerArray.Add(biasLayer);
+            }
+        }
 
-            if(GUILayout.Button("Save Training Data"))
+        /// <summary>
+        /// Sets the neural network data parameter
+        /// </summary>
+        /// <param name="_neuralNetData"></param>
+        public void SetNeuralNetworkData(NeuralNetData _neuralNetData)
+        {
+            nnData = _neuralNetData;
+        }
+        
+        public void LoadFromFileName(string _fileName)
+        {
+            SetFileName(_fileName);
+            LoadTrainingData();
+        }
+        
+        /// <summary>
+        /// A struct to store the training data of the neural network in a format that can be saved as a JSON file.
+        /// </summary>
+        [Serializable]
+        public struct TrainingModel
+        {
+            public float fitness;
+            public int inputLayerDimensions;
+            public int outputLayerDimensions;
+            public List<float[]> hiddenLayers;
+            public List<float[,]> weights;
+            public List<float[,]> biases;
+            public ActivationType activationType;
+
+            /// <summary>
+            /// A constructor to set the values of the training model.
+            /// </summary>
+            /// <param name="_nnData"></param>
+            /// <param name="_tDataStruct"></param>
+            public TrainingModel(NeuralNetData _nnData, TrainingDataStruct _tDataStruct)
             {
-                trainingData.SaveTrainingData();
+                // set the local variables to the values of the neural network data
+                fitness = _tDataStruct.fitness;
+                activationType = _tDataStruct.activationType;
+                inputLayerDimensions = _nnData.GetInputCount();
+                outputLayerDimensions = _nnData.GetOutputCount();
+                
+                // create a new list of float arrays for the hidden layers
+                hiddenLayers = new List<float[]>();
+                // loop through each hidden layer in the neural network data
+                foreach (Layer hiddenLayer in _tDataStruct.hiddenLayerArray)
+                {
+                    // add a new float array to the list
+                    hiddenLayers.Add(hiddenLayer.GetData());
+                }
+                
+                // create a new list of float arrays for the weights
+                weights = new List<float[,]>();
+                // loop through each weight layer in the neural network data
+                foreach (Layer weight in _tDataStruct.weightsLayerArray)
+                {
+                    // get the dimensions of the weight layer
+                    Vector2Int dimensions = weight.GetDimensions();
+                    // create a new float array with the dimensions of the weight layer
+                    float[,] weightArray = new float[dimensions.x, dimensions.y];
+                    // nested loop to loop through each row and column of the matrix
+                    for (int i = 0; i < dimensions.y; i++)
+                    {
+                        for (int j = 0; j < dimensions.x; j++)
+                        {
+                            // set the value of the matrix to the value of the neuron
+                            weightArray[j, i] = weight.GetData()[i * dimensions.x + j];
+                        }
+                    }
+                    // add the weight array to the list
+                    weights.Add(weightArray);
+                }
+                
+                // create a new list of float arrays for the biases
+                biases = new List<float[,]>();
+                // loop through each bias layer in the neural network data
+                foreach (Layer bias in _tDataStruct.biasesLayerArray)
+                {
+                    // get the dimensions of the bias layer
+                    int length = bias.GetData().Length;
+                    // create a new float array with the dimensions of the bias layer
+                    float[,] biasArray = new float[1, length];
+                    // nested loop to loop through each row and column of the matrix
+                    for (int i = 0; i < length; i++)
+                    {
+                        // set the value of the matrix to the value of the neuron
+                        biasArray[0, i] = bias.GetData()[i];
+                    }
+                    // add the bias array to the list
+                    biases.Add(biasArray);
+                }
             }
             
-            if(GUILayout.Button("Load Training Data"))
+            /// <summary>
+            /// Returns the training model
+            /// </summary>
+            /// <returns></returns>
+            public TrainingModel GetTrainingModel()
             {
-                trainingData.LoadTrainingData();
+                return this;
             }
-            
         }
     }
 
+    /// <summary>
+    /// A container for the training data of the neural network.
+    /// </summary>
     [Serializable]
     public struct TrainingDataStruct
     {
+        /// <summary>
+        /// A dense matrix for the input layer's floats for the neural network.
+        /// </summary>
         public Matrix<float> inputLayer;
+        
+        /// <summary>
+        /// A list of dense matrices for the hidden layers' floats for the neural network.
+        /// </summary>
         public List<Matrix<float>> hiddenLayers;
+        
+        /// <summary>
+        /// A dense matrix for the output layer's floats for the neural network.
+        /// </summary>
         public Matrix<float> outputLayer;
+        
+        /// <summary>
+        /// A list of dense matrices for the weights' floats for the neural network.
+        /// </summary>
         public List<Matrix<float>> weights;
+        
+        /// <summary>
+        /// A list of dense matrices for the biases' floats for the neural network.
+        /// </summary>
         public List<Matrix<float>> biases;
-        [SerializeField]
+        
+        
+        [SerializeField,
+        Tooltip("The fitness of the neural network.")]
         public float fitness;
-        [SerializeField]
+        
+        [SerializeField,
+        Tooltip("The activation type of the neural network.")]
         public ActivationType activationType;
-        [SerializeField]
+        
+        [SerializeField,
+        Tooltip("A Layer object for the input layer.")]
         public Layer inputLayerArray;
-        [SerializeField]
+        
+        [SerializeField,
+        Tooltip("A Layer object for the output layer.")]
         public Layer outputLayerArray;
-        [SerializeField]
+        
+        [SerializeField,
+        Tooltip("A list of Layer objects for the hidden layers.")]
         public List<Layer> hiddenLayerArray;
-        [SerializeField]
+        
+        [SerializeField,
+        Tooltip("A list of Layer objects for the weights.")]
         public List<Layer> weightsLayerArray;
-        [SerializeField]
+        
+        [SerializeField,
+        Tooltip("A list of Layer objects for the biases.")]
         public List<Layer> biasesLayerArray;
 
+        /// <summary>
+        /// A list of integers for the number of neurons in each hidden layer.
+        /// </summary>
         private List<int> hiddenNeuronCountList;
         
+        /// <summary>
+        /// Sets the data of the training data struct and converts the dense matrices to float arrays for storing as
+        /// a Layer object.
+        /// </summary>
+        /// <param name="_inputLayer"></param>
+        /// <param name="_hiddenLayers"></param>
+        /// <param name="_outputLayer"></param>
+        /// <param name="_weights"></param>
+        /// <param name="_biases"></param>
+        /// <param name="_fitness"></param>
+        /// <param name="_activationType"></param>
         public void SetData(Matrix<float> _inputLayer, List<Matrix<float>> _hiddenLayers, 
                             Matrix<float> _outputLayer, List<Matrix<float>> _weights, List<Matrix<float>> _biases,
                             float _fitness, ActivationType _activationType)
@@ -292,6 +543,9 @@ namespace NeuralNet
             }
         }
 
+        /// <summary>
+        /// Converts the dense matrices to float arrays for storing as a Layer object.
+        /// </summary>
         public void ConvertData()
         {
             if(inputLayer != null)
@@ -326,6 +580,9 @@ namespace NeuralNet
             }
         }
 
+        /// <summary>
+        /// Clears the data of the training data struct.
+        /// </summary>
         public void ClearData()
         {
             inputLayer = null;
@@ -342,8 +599,11 @@ namespace NeuralNet
             biasesLayerArray = null;
             hiddenNeuronCountList = null;
         }
-
-
+        
+        /// <summary>
+        /// Returns a list of integers for the number of neurons in each hidden layer.
+        /// </summary>
+        /// <returns></returns>
         public List<int> GetHiddenNeuronCountList()
         { 
             return hiddenNeuronCountList;

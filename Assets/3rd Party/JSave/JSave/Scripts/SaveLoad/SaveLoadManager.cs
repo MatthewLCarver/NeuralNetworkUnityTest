@@ -155,9 +155,9 @@ namespace SaveLoad
 		[ContextMenu("Save Unique Data")]
 		public void Save<T>(T _data, string _fileName)
 		{
-			Debug.Log("Saved");
 			defSaveName = _fileName;
 			SaveGame(SAVE_PATH, _data);
+			Debug.Log("Saved");
 		}
 
 		[ContextMenu("Load")]
@@ -170,6 +170,7 @@ namespace SaveLoad
 		{
 			defSaveName = _fileName;
 			LoadGame(SAVE_PATH, ref data);
+			Debug.Log("Loaded");
 		}
 
 		public void DeleteSave()

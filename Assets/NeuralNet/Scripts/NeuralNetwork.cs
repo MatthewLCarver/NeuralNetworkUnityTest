@@ -15,70 +15,111 @@ using Random = UnityEngine.Random;
 
 namespace NeuralNet
 {
-    
+    /// <summary>
+    /// The Activation Type of the hidden nodes for use in the Neural Network.
+    /// </summary>
     public enum ActivationType
     {
+        [Tooltip("The Sigmoid activation function (produces values between 0 and 1)")]
         Sigmoid,
+        
+        [Tooltip("The Tanh activation function (produces values between -1 and 1)")]
         Tanh,
+        
+        [Tooltip("The ReLU activation function (produces values between 0 and 1 on a linear scale)")]
         ReLU,
+        
+        [Tooltip("The Leaky ReLU activation function (produces values between 0 and 1 on a linear scale with a " +
+                 "small negative gradient)")]
         LeakyReLU,
+        
+        [Tooltip("The Softmax activation function (produces values between 0 and 1 that scales the values to " +
+                 "sum to 1)")]
         Softmax
     }
 
     public class NeuralNetwork : MonoBehaviour
     {
+        // Neural Network Data
         public int inputCount;
         public int outputCount;
         public int hiddenLayerCount;
         public List<int> hiddenNeuronList;
         public ActivationType activationType;
 
+        /// <summary>
+        /// A list of the training data for the neural network to train and improve itself.
+        /// </summary>
         private List<TrainingDataStruct> trainingDataList = new List<TrainingDataStruct>();
     
-        // 
+        /// <summary>
+        /// A dense matrix of the input layer of the neural network.
+        /// </summary>
         private Matrix<float> inputLayer;
     
-        //
+        /// <summary>
+        /// A dense matrix of the hidden layers of the neural network.
+        /// </summary>
         private List<Matrix<float>> hiddenLayers;
     
-        //
+        /// <summary>
+        /// A dense matrix of the output layer of the neural network.
+        /// </summary>
         private Matrix<float> outputLayer;
     
-        //
+        /// <summary>
+        /// A list of dense matrices of the weights of the neural network.
+        /// </summary>
         private List<Matrix<float>> weights;
     
-        //
+        /// <summary>
+        /// A list of dense matrices of the biases of the neural network.
+        /// </summary>
         private List<Matrix<float>> biases;
     
-        //
+        /// <summary>
+        /// The learning rate of the neural network.
+        /// </summary>
         private float learningRate;
         
+        /// <summary>
+        /// The total number of layers in the neural network from input to hidden layers to output.
+        /// </summary>
         private int totalLayers = 0;
         
-        [SerializeField]
+        [SerializeField, Tooltip("The total number of epochs to train the neural network for. " +
+                                 "An epoch is a single iteration of the training data.")]
         private int totalEpochs = 0;
         
+        /// <summary>
+        /// The current epoch of the neural network.
+        /// </summary>
         private int currentEpoch = 0;
-        
-        [SerializeField]
-        private int trainingExamples = 0;
-        
-        [SerializeField]
-        private int miniBatchSize = 0;
-        
+
         [SerializeField, Tooltip("Experimental, do this only once a baseline training data model has been established")]
         private bool toggleWeightsAndBiasesRevision = false;
         
-        
-        // Inputs and Outputs
+        /// <summary>
+        /// The input float array that the neural network takes in to process and generate an output.
+        /// </summary>
         private float[] aiInput;
+        
+        /// <summary>
+        /// The output float array that the neural network generates
+        /// </summary>
         private float[] aiOutput;
         
         // Multithreading
+        /// <summary>
+        /// A thread that runs the neural network in the background for efficiency and performance.
+        /// </summary>
         private Thread networkThread = null;
-        private bool networkActive;
-        private float timeScale;
         
+        /// <summary>
+        /// A bool to control whether the neural network is active or not.
+        /// </summary>
+        private bool networkActive;
+
         /// <summary>
         /// Initialise the neural network with the data from the NeuralNetData scriptable object for a
         /// new neural network
@@ -183,31 +224,26 @@ namespace NeuralNet
             aiInput = new float[inputCount];
         }
 
+        /// <summary>
+        /// Generates a new thread to run the neural network in the background.
+        /// </summary>
         private void InitialiseThread()
         {
             networkThread = new Thread(RunNetwork);
         }
 
+        /// <summary>
+        /// Initialises the thread and starts it.
+        /// </summary>
         public void StartThreading()
         {
-
             InitialiseThread();
             networkThread.Start();
-            
         }
-        
-        // slow
-        /*public void StartThreading()
-        {
-            if(networkThread == new Thread(RunNetwork))
-                networkThread.Start();
-            else
-            {
-                InitialiseThread();
-                networkThread.Start();
-            }
-        }*/
 
+        /// <summary>
+        /// Aborts the current thread.
+        /// </summary>
         public void StopThreading()
         {
             networkThread.Abort();
@@ -218,9 +254,7 @@ namespace NeuralNet
         /// </summary>
         private void RandomiseWeights()
         {
-            
-            
-            // Loop through each weight matrix and randomise the values
+            // Loop through each weight matrix
             for (int i = 0; i < weights.Count; i++)
             {
                 // loop through each neuron in the layer
@@ -233,7 +267,6 @@ namespace NeuralNet
                         weights[i][j, k] = randomIndex;
                     }
                 }
-                /*weights[i] = weights[i].Map(x => randomIndex);*/
             }
         }
 
@@ -253,6 +286,10 @@ namespace NeuralNet
         /// <returns></returns>
         public float[] GetOutput() => aiOutput;
         
+        /// <summary>
+        /// Set the network to be active or not
+        /// </summary>
+        /// <param name="_isActive"></param>
         public void SetNetworkActive(bool _isActive) => networkActive = _isActive;
 
 
@@ -266,8 +303,9 @@ namespace NeuralNet
         {
             while (networkActive)
             {
+                // Try statement for potential error handling
                 try {
-                    // initialise input layer with the raw data
+                    // initialise input layer with the raw data from the input array
                     for (int i = 0; i < inputCount; i++)
                     {
                         inputLayer[0, i] = aiInput[i];
@@ -283,14 +321,14 @@ namespace NeuralNet
                     for (int i = 0; i < outputLayer.ColumnCount; i++)
                         output[i] = outputLayer[0, i];
 
-                    // Mini-batch Gradient Descent
-                    //output = GradientDescent(output);
+                    // Mini-batch Gradient Descent when the current epoch is equal to the total epochs
                     if(currentEpoch >= totalEpochs)
                     {
-                        output = MiniBatchGradientDescent(trainingExamples, ConvertTrainingDataList(trainingDataList),
-                                                          miniBatchSize, learningRate, currentEpoch);
+                        output = MiniBatchGradientDescent(totalEpochs, ConvertTrainingDataList(trainingDataList),
+                                                          totalEpochs, learningRate, currentEpoch);
                     }
 
+                    // Set the output data
                     aiOutput = output;
                 }
                 catch(ThreadInterruptedException e)
@@ -316,6 +354,11 @@ namespace NeuralNet
             }
         }
 
+        /// <summary>
+        /// Similar to the ForwardFeed method but only activates the neurons in the given layer without the
+        /// need to backpropagate
+        /// </summary>
+        /// <returns></returns>
         private float[] TestRevisedMSEOutput()
         {
             // initialise input layer with the raw data
@@ -422,11 +465,10 @@ namespace NeuralNet
             // Loop through each training data
             for (int i = 0; i < _trainingData.GetLength(0); i++)
             {
-                // Get a random index
+                // Get a random index with a slight delay to ensure a different random number is generated
                 Thread.Sleep(1);
                 System.Random r = new System.Random();
                 int randomIndex = r.Next(0, _trainingData.GetLength(1) - 1);
-                //int randomIndex = Random.Range(0, (int)index.Sample());
 
                 // Swap the training data
                 for (int j = 0; j < _trainingData.GetLength(1); j++)
@@ -478,6 +520,7 @@ namespace NeuralNet
                 }
 
                 // Calculate the deltas for each output neuron
+                // The delta is used as a weight modifier for the weights between the hidden layer and the output layer
                 float[,] deltas = new float[outputLayer.ColumnCount, hiddenLayers[hiddenLayers.Count - 1].ColumnCount];
                 for(int j = 0; j < outputLayer.ColumnCount; j++)
                 {
@@ -500,6 +543,7 @@ namespace NeuralNet
                     }
                 }
 
+                // Calculate the error for each hidden layer
                 Matrix<float>[] hiddenLayerErrors = new Matrix<float>[hiddenLayers.Count];
                 for(int j = 0; j < hiddenLayers.Count; j++)
                 {
@@ -546,6 +590,7 @@ namespace NeuralNet
                 }
                 
                 // Calculate the deltas for each hidden layer neuron
+                // The delta is used as a weight modifier for the weights between the hidden layer and the output layer
                 Matrix<float>[] hiddenLayerDeltas = new Matrix<float>[hiddenLayers.Count];
                 for(int j = 0; j < hiddenLayers.Count; j++)
                 {
@@ -578,20 +623,7 @@ namespace NeuralNet
                         }
                     }
                 }
-
-                // Update the weights and biases for the output layer
-                for(int j = 0; j < outputLayer.ColumnCount; j++)
-                {
-                    // Update the biases
-                    biases[biases.Count - 1][0, j] += gradients[j] * _learningRate;
-
-                    // Update the weights
-                    for(int k = 0; k < hiddenLayers[hiddenLayers.Count - 1].ColumnCount; k++)
-                    {
-                        weights[weights.Count - 1][k, j] += deltas[j, k] * _learningRate;
-                    }
-                }
-
+                
                 if(toggleWeightsAndBiasesRevision)
                     output = TestRevisedMSEOutput();
                 
@@ -607,7 +639,6 @@ namespace NeuralNet
                 {
                     // If it has, decrease the learning rate
                     _learningRate *= 0.5f;
-//                    Debug.Log($"Old MSE: {mse} | New MSE: {newMSE} | ");
                 }
                 else
                 {
@@ -615,141 +646,15 @@ namespace NeuralNet
                     _learningRate *= 1.05f;
                     RevertWeightsAndBiases(hiddenLayerGradients, hiddenLayerDeltas, _learningRate);
                 }
-
-                /*ConcurrentDictionary<int, float[,]> hiddenLayerErrors = new ConcurrentDictionary<int, float[,]>();
-                Parallel.For(0, hiddenLayers.Count, index =>
-                {
-                    hiddenLayerErrors.TryAdd(index, new float[1, hiddenLayers[index].ColumnCount]);
-                });
-
-                // Calculate the error for each hidden layer neuron
-                Parallel.For(0, hiddenLayers.Count - 1, index =>
-                {
-                    for (int j = 0; j < hiddenLayers[index].ColumnCount; j++)
-                    {
-                        float error = 0;
-                        if (index == hiddenLayers.Count - 1)
-                        {
-                            for (int k = 0; k < outputLayer.ColumnCount; k++)
-                            {
-                                error += deltas[k, j] * weights[weights.Count - 1][j, k];
-                            }
-                        }
-                        else
-                        {
-                            for (int k = 0; k < hiddenLayers[index + 1].ColumnCount; k++)
-                            {
-                                error += hiddenLayerErrors[index + 1][k, j] * weights[index + 1][j, k];
-                            }
-                        }
-                        hiddenLayerErrors[index][0, j] = error;
-                    }
-                });
-                
-                // Calculate the gradient for each hidden layer neuron
-                ConcurrentDictionary<int, float[,]> hiddenLayerGradients = new ConcurrentDictionary<int, float[,]>();
-                for(int index = 0; index < hiddenLayers.Count; index++)
-                    hiddenLayerGradients[index] = 
-                        new float[hiddenLayers[index].RowCount, hiddenLayers[index].ColumnCount];
-                
-                // Calculate the gradient for each hidden layer neuron
-                Parallel.For(0, hiddenLayers.Count - 1, index =>
-                {
-                    for (int j = 0; j < hiddenLayers[index].ColumnCount; j++)
-                    {
-                        hiddenLayerGradients[index][0, j] = hiddenLayerErrors[index][0, j] * 
-                                                            GetActivationMethod(hiddenLayers[index][0, j]);
-                    }
-                });
-                
-                // Calculate the deltas for each hidden layer neuron
-                ConcurrentDictionary<int, float[,]> hiddenLayerDeltas = new ConcurrentDictionary<int, float[,]>();
-                for(int index = 0; index < hiddenLayers.Count; index++)
-                    hiddenLayerDeltas[index] = 
-                        new float[hiddenLayers[index].RowCount, hiddenLayers[index].ColumnCount];
-                
-                // Calculate the deltas for each hidden layer neuron
-                Parallel.For(0, hiddenLayers.Count - 1, index =>
-                {
-                    for (int j = 0; j < hiddenLayers[index].ColumnCount; j++)
-                    {
-                        for (int k = 0; k < hiddenLayers[index].RowCount; k++)
-                        {
-                            hiddenLayerDeltas[index][k, j] = hiddenLayerGradients[index][k, j] * 
-                                                                hiddenLayers[index][k, j];
-                        }
-                    }
-                });
-                
-                // Update the weights and biases for each hidden layer
-                Parallel.For(0, hiddenLayers.Count - 1, index =>
-                {
-                    for (int j = 0; j < hiddenLayers[index].ColumnCount; j++)
-                    {
-                        // Update the biases
-                        biases[index][0, j] += hiddenLayerGradients[index][0, j] * _learningRate;
-
-                        // Update the weights
-                        for (int k = 0; k < hiddenLayers[index].RowCount; k++)
-                        {
-                            weights[index][k, j] += hiddenLayerDeltas[index][k, j] * _learningRate;
-                        }
-                    }
-                });
-                
-                // Update the weights and biases for the output layer
-                for (int j = 0; j < outputLayer.ColumnCount; j++)
-                {
-                    // Update the biases
-                    biases[biases.Count - 1][0, j] += gradients[j] * _learningRate;
-
-                    // Update the weights
-                    for (int k = 0; k < hiddenLayers[hiddenLayers.Count - 1].ColumnCount; k++)
-                    {
-                        weights[weights.Count - 1][k, j] += deltas[j, k] * _learningRate;
-                    }
-                }
-                
-                // Calculate the new MSE
-                float newMSE = GetMSECostOnly(output);
-                
-                // If the new MSE is greater than the old MSE, revert the changes
-                if (newMSE > mse)
-                {
-                    Debug.Log($"Old MSE: {mse} | New MSE: {newMSE} | Reverting changes...");
-                    
-                    // Revert the weights and biases for the output layer
-                    for (int j = 0; j < outputLayer.ColumnCount; j++)
-                    {
-                        // Revert the biases
-                        biases[biases.Count - 1][0, j] -= gradients[j] * _learningRate;
-
-                        // Revert the weights
-                        for (int k = 0; k < hiddenLayers[hiddenLayers.Count - 1].ColumnCount; k++)
-                        {
-                            weights[weights.Count - 1][k, j] -= deltas[j, k] * _learningRate;
-                        }
-                    }
-                    
-                    // Revert the weights and biases for each hidden layer
-                    for (int n = 0; n < hiddenLayers.Count; n++)
-                    {
-                        for (int j = 0; j < hiddenLayers[n].ColumnCount; j++)
-                        {
-                            // Revert the biases
-                            biases[n][0, j] -= hiddenLayerGradients[n][0, j] * _learningRate;
-
-                            // Revert the weights
-                            for (int k = 0; k < hiddenLayers[n].RowCount; k++)
-                            {
-                                weights[n][k, j] -= hiddenLayerDeltas[n][k, j] * _learningRate;
-                            }
-                        }
-                    }
-                }*/
             }
         }
 
+        /// <summary>
+        /// Reverts the weights and biases to their previous values if the MSE has increased after a training iteration
+        /// </summary>
+        /// <param name="_hiddenLayerGradients"></param>
+        /// <param name="_hiddenLayerDeltas"></param>
+        /// <param name="_learningRate"></param>
         private void RevertWeightsAndBiases(Matrix<float>[] _hiddenLayerGradients, Matrix<float>[] _hiddenLayerDeltas, float _learningRate)
         {
             for(int j = 0; j < outputLayer.ColumnCount; j++)
@@ -801,9 +706,6 @@ namespace NeuralNet
                         // update the weight and bias values
                         weights[i][k, j] = newWeight;
                         biases[i][0, j] = newBias;
-                        
-                        // get the new output
-                        //_output = ReRunNetwork(inputLayer.ToRowMajorArray());
                         
                         // get the new MSE
                         float newMSE = GetMSECostOnly(_output);
@@ -1040,7 +942,10 @@ namespace NeuralNet
             trainingDataList.Clear();
         }
         
-        
+        /// <summary>
+        /// Validate the data to make sure it is not null
+        /// </summary>
+        /// <returns></returns>
         private bool ValidateData()
         {
             // Check if the input layer is null
@@ -1120,11 +1025,6 @@ namespace NeuralNet
             trainingData.activationType = activationType;
 
             return trainingData;
-        }
-        
-        public void SetTimeScale(float _timeScale)
-        {
-            timeScale = _timeScale;
         }
     }
 }
