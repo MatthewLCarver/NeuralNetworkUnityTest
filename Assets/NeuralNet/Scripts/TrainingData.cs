@@ -33,7 +33,7 @@ namespace NeuralNet
         /// <summary>
         /// The name of the file that will be saved.
         /// </summary>
-        private string fileName = "FileName";
+        private string fileName = "TrainedModel";
 
         /// <summary>
         /// Sets the data of the neural network when data is individually given.

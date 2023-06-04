@@ -2,9 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEditor;
+using UnityEngine.Networking;
 
 public class MenuManager : MonoBehaviour
 {
+    
+    
     /// <summary>
     /// Disables the given button.
     /// </summary>
@@ -14,16 +18,25 @@ public class MenuManager : MonoBehaviour
         _button.interactable = false;
     }
     
+    /// <summary>
+    /// Goes to the next scene in the build order.
+    /// </summary>
     public void GoToNextScene()
     {
         SceneLoader.Instance.LoadNextScene();
     }
     
+    /// <summary>
+    /// Goes to the previous scene in the build order.
+    /// </summary>
     public void GoToPreviousScene()
     {
         SceneLoader.Instance.LoadPreviousScene();
     }
     
+    /// <summary>
+    /// Quits the game in the editor and in the build.
+    /// </summary>
     public void QuitGame()
     {
         #if UNITY_EDITOR

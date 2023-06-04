@@ -23,9 +23,11 @@ namespace SaveLoad
 
 		private Dictionary<string, ScriptableObject> scriptables;
 
-		private string SAVE_PATH => $"./Assets/NeuralNet/JSON Training Data Models/{defSaveName}.json";
+		private string SAVE_PATH => $"{Application.persistentDataPath}/{defSaveName}.json";
 
 		public bool encrypt = true;
+
+		public TextAsset saveFile;
 
 		private static JsonSerializerSettings jsonSettings => new JsonSerializerSettings
 		{
@@ -149,6 +151,7 @@ namespace SaveLoad
 		public void Save()
 		{
 			Debug.Log("Saved");
+			Debug.Log(SAVE_PATH);
 			SaveGame(SAVE_PATH);
 		}
 		
@@ -166,9 +169,19 @@ namespace SaveLoad
 			LoadGame(SAVE_PATH);
 		}
 		
+		public void Load(bool _useJson)
+		{
+			Debug.Log(SAVE_PATH.ToString());
+			if(_useJson && 
+			   File.Exists(SAVE_PATH) &&
+			   saveFile != null)
+				LoadGame(SAVE_PATH);
+		}
+		
 		public void Load<T>(ref T data, string _fileName)
 		{
 			defSaveName = _fileName;
+			Debug.Log(SAVE_PATH);
 			LoadGame(SAVE_PATH, ref data);
 			Debug.Log("Loaded");
 		}
