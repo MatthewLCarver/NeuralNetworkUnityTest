@@ -119,6 +119,7 @@ public class RaceCarController : MonoBehaviour
     /// </summary>
     private void OnDestroy()
     {
+        Reset();
         ta.CeaseTraining();
     }
     
@@ -127,6 +128,7 @@ public class RaceCarController : MonoBehaviour
     /// </summary>
     private void OnDisable()
     {
+        Reset();
         ta.CeaseTraining();
     }
 
@@ -135,6 +137,7 @@ public class RaceCarController : MonoBehaviour
     /// </summary>
     private void OnApplicationQuit()
     {
+        Reset();
         ta.CeaseTraining();
     }
 

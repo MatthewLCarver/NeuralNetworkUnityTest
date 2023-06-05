@@ -27,8 +27,6 @@ namespace SaveLoad
 
 		public bool encrypt = true;
 
-		public TextAsset saveFile;
-
 		private static JsonSerializerSettings jsonSettings => new JsonSerializerSettings
 		{
 			TypeNameHandling = TypeNameHandling.None,
@@ -53,6 +51,12 @@ namespace SaveLoad
 			{
 				SaveGame(SAVE_PATH);
 			}
+			
+			/*#if UNITY_EDITOR
+				SAVE_PATH = $"{Application.persistentDataPath}/{defSaveName}.json";
+			#else
+				SAVE_PATH = $"{}"
+			#endif*/
 			
 			prefabs = LoadPrefabs(PREFAB_PATH);
 			scriptables = LoadScriptables(SCRIPTABLE_PATH);
@@ -172,9 +176,7 @@ namespace SaveLoad
 		public void Load(bool _useJson)
 		{
 			Debug.Log(SAVE_PATH.ToString());
-			if(_useJson && 
-			   File.Exists(SAVE_PATH) &&
-			   saveFile != null)
+			if(_useJson && File.Exists(SAVE_PATH))
 				LoadGame(SAVE_PATH);
 		}
 		
@@ -357,6 +359,11 @@ namespace SaveLoad
 		public static Quaternion ConvertToQuaternion(float[] values)
 		{
 			return new Quaternion(values[0], values[1], values[2], values[3]);
+		}
+
+		public string GetSavePath()
+		{
+			return SAVE_PATH;
 		}
 		
 	}

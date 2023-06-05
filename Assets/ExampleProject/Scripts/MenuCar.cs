@@ -10,7 +10,7 @@ public class MenuCar : MonoBehaviour
     void Awake()
     {
         ta = GetComponent<TrainableAgent>();
-        ta.Train();
+        ta.Train(false);
         StartCoroutine(AbortThread());
     }
 

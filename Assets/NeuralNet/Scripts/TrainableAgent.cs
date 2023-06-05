@@ -155,6 +155,7 @@ namespace NeuralNet
 		/// </summary>
 		private void Awake()
 		{
+			Debug.Log("Yolo");
 			Initialise();
 		}
 		
@@ -246,18 +247,21 @@ namespace NeuralNet
 		/// <summary>
 		/// Accessor function to get the neural network to start training
 		/// </summary>
-		public void Train()
+		public void Train(bool isActive = true)
 		{
-			StartTraining();
+			if(isActive)
+				StartTraining();
+			else
+				StartTraining(isActive);
 		}
 		
 		/// <summary>
 		/// Commences the training of the neural network thread and sets the neural network to active
 		/// </summary>
-		private void StartTraining()
+		private void StartTraining(bool isActive = true)
 		{
 			neuralNetwork.StartThreading();
-			neuralNetwork.SetNetworkActive(true);
+			neuralNetwork.SetNetworkActive(isActive);
 		}
 
 		/// <summary>
@@ -649,6 +653,12 @@ namespace NeuralNet
 		public NeuralNetData GetNeuralNetData()
 		{
 			return neuralNetData;
+		}
+
+		public void Load()
+		{
+			trainingData.LoadTrainingData();
+			Initialise();
 		}
 
 		public void LoadModel(string _fileName)

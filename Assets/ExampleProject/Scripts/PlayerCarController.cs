@@ -27,7 +27,6 @@ public class PlayerCarController : MonoBehaviour
         {
             // set vert to lerp up to 1.0f
             vert = Mathf.Lerp(vert, 1.0f, 0.015f);
-            Debug.Log(vert);
         }
         
         if (Input.GetKey(KeyCode.S))

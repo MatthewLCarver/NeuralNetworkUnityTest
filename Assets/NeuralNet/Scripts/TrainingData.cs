@@ -213,6 +213,7 @@ namespace NeuralNet
         {
             // clear all data
             data.ClearData();
+            ResetTrainingModel();
         }
         
         /// <summary>
@@ -232,6 +233,7 @@ namespace NeuralNet
         /// </summary>
         public void LoadTrainingData()
         {
+            //ResetTrainingData();
             SaveLoadManager.Instance.Load(ref trainingModel, fileName);
             ConvertTrainingModelToTrainingData();
         }
@@ -286,6 +288,17 @@ namespace NeuralNet
             }
         }
 
+        public void ResetTrainingModel()
+        {
+            trainingModel.fitness = 0;
+            trainingModel.activationType = ActivationType.Sigmoid;
+            trainingModel.inputLayerDimensions = 0;
+            trainingModel.outputLayerDimensions = 0;
+            trainingModel.hiddenLayers = null;
+            trainingModel.weights = null;
+            trainingModel.biases = null;
+        }
+
         /// <summary>
         /// Sets the neural network data parameter
         /// </summary>
@@ -298,6 +311,11 @@ namespace NeuralNet
         public void LoadFromFileName(string _fileName)
         {
             SetFileName(_fileName);
+            LoadTrainingData();
+        }
+        
+        public void Load()
+        {
             LoadTrainingData();
         }
         

@@ -1,5 +1,11 @@
+using SaveLoad;
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
+
+using TMPro;
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
@@ -7,8 +13,17 @@ using UnityEngine.Networking;
 
 public class MenuManager : MonoBehaviour
 {
-    
-    
+    [SerializeField]
+    private TMP_Text debugText = null;
+
+    private void FixedUpdate()
+    {
+        if(debugText == null)
+            return;
+
+        debugText.text = SaveLoadManager.Instance.GetSavePath();
+    }
+
     /// <summary>
     /// Disables the given button.
     /// </summary>
@@ -16,6 +31,11 @@ public class MenuManager : MonoBehaviour
     public void DisableButton(Button _button)
     {
         _button.interactable = false;
+    }
+
+    public void EnableButton(Button _button)
+    {
+        _button.interactable = true;
     }
     
     /// <summary>
