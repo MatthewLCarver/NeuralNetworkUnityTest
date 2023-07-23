@@ -151,11 +151,20 @@ namespace NeuralNet
 		public UnityEvent resetAgentEvent;
 
 		/// <summary>
+		/// A Unity event that is invoked when the AI has no training data when attempting to load
+		/// </summary>
+		public UnityEvent noTrainingDataEvent;
+
+		/// <summary>
+		/// A flag to save this AI's training data before reset
+		/// </summary>
+		private bool isToBeSaved = false;
+
+		/// <summary>
 		/// Initialises the TrainableAgent on Awake
 		/// </summary>
 		private void Awake()
 		{
-			Debug.Log("Yolo");
 			Initialise();
 		}
 		
@@ -165,8 +174,14 @@ namespace NeuralNet
 		/// <param name="other"></param>
 		private void OnCollisionEnter(Collision other)
 		{
+			if (isToBeSaved)
+         	{
+         		trainingData.SaveTrainingData();
+         		isToBeSaved = false;
+         	}
 			currentFitness = 0f;
 			ResetFitnessParameters();
+
 			resetAgentEvent?.Invoke();
 		}
 
@@ -565,7 +580,8 @@ namespace NeuralNet
 				if (!float.IsInfinity(currentFitness))
 					bestFitness = currentFitness;
 				trainingData.SetTrainingData(neuralNetwork.GetTrainingData(), bestFitness, this);
-
+				isToBeSaved = true;
+				
 				return;
 			}
 			
@@ -657,8 +673,10 @@ namespace NeuralNet
 
 		public void Load()
 		{
-			trainingData.LoadTrainingData();
-			Initialise();
+			if(trainingData.ConfirmLoadTrainingData())
+				Initialise();
+			else
+				noTrainingDataEvent?.Invoke();
 		}
 
 		public void LoadModel(string _fileName)

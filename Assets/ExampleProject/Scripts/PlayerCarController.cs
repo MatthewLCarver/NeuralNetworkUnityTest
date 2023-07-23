@@ -51,7 +51,7 @@ public class PlayerCarController : MonoBehaviour
         if(vert != 0)
             vert = Mathf.Lerp(vert, 0.0f, 0.005f);
         if(hor != 0)
-            hor = Mathf.Lerp(hor, 0.0f, 0.005f);
+            hor = Mathf.Lerp(hor, 0.0f, 0.025f);
         
         MoveCar(vert, hor);
     }

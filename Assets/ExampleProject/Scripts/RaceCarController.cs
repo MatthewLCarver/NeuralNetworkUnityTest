@@ -147,7 +147,7 @@ public class RaceCarController : MonoBehaviour
     /// Count the time since the last application of the output, and apply the output to the car.
     /// Calculate the distance travelled by the car.
     /// </summary>
-    private void Update()
+    private void FixedUpdate()
     {
         sensors = ta.GetInputSensorArray();
         

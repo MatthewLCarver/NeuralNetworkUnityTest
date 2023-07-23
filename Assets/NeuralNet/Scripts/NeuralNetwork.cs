@@ -305,6 +305,10 @@ namespace NeuralNet
             {
                 // Try statement for potential error handling
                 try {
+                    
+                    if(aiInput == null)
+                        return;
+                    
                     // initialise input layer with the raw data from the input array
                     for (int i = 0; i < inputCount; i++)
                     {

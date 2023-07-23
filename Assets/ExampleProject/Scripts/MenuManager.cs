@@ -14,15 +14,9 @@ using UnityEngine.Networking;
 public class MenuManager : MonoBehaviour
 {
     [SerializeField]
-    private TMP_Text debugText = null;
-
-    private void FixedUpdate()
-    {
-        if(debugText == null)
-            return;
-
-        debugText.text = SaveLoadManager.Instance.GetSavePath();
-    }
+    private TMP_Text noTrainingModelText = null;
+    
+    private bool isValidTrainingModel = true;
 
     /// <summary>
     /// Disables the given button.
@@ -35,7 +29,14 @@ public class MenuManager : MonoBehaviour
 
     public void EnableButton(Button _button)
     {
-        _button.interactable = true;
+        if(isValidTrainingModel)
+            _button.interactable = true;
+    }
+
+    public void UpdateNoTrainingDataText()
+    {
+        noTrainingModelText.text = "No training data found. Please train a model first.";
+        isValidTrainingModel = false;
     }
     
     /// <summary>
@@ -52,6 +53,11 @@ public class MenuManager : MonoBehaviour
     public void GoToPreviousScene()
     {
         SceneLoader.Instance.LoadPreviousScene();
+    }
+    
+    public void GoToTrainingScene()
+    {
+        SceneLoader.Instance.LoadTrainingScene();
     }
     
     /// <summary>
@@ -98,5 +104,10 @@ public class SceneLoader
         int currentSceneIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
         // load the previous scene
         UnityEngine.SceneManagement.SceneManager.LoadScene(currentSceneIndex - 1);
+    }
+
+    public void LoadTrainingScene()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(2);
     }
 }

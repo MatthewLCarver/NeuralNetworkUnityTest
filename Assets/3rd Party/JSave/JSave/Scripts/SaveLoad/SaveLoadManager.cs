@@ -6,14 +6,14 @@ using System.IO;
 using MathNet.Numerics.LinearAlgebra;
 
 using NeuralNet;
-
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace SaveLoad
 {
 	public class SaveLoadManager : MonoBehaviour
 	{
-		[SerializeField] private string defSaveName = "save";
+		[SerializeField] private string defSaveName = "TrainedModel";
 		
 		private const string PREFAB_PATH = "Prefabs/";
 
@@ -26,6 +26,8 @@ namespace SaveLoad
 		private string SAVE_PATH => $"{Application.persistentDataPath}/{defSaveName}.json";
 
 		public bool encrypt = true;
+		
+		public bool createDefaultFile = true;
 
 		private static JsonSerializerSettings jsonSettings => new JsonSerializerSettings
 		{
@@ -47,7 +49,7 @@ namespace SaveLoad
 				Destroy(gameObject);
 			}
 			
-			if(!SaveFileExists())
+			if(!SaveFileExists() && createDefaultFile)
 			{
 				SaveGame(SAVE_PATH);
 			}
@@ -180,12 +182,20 @@ namespace SaveLoad
 				LoadGame(SAVE_PATH);
 		}
 		
-		public void Load<T>(ref T data, string _fileName)
+		public bool Load<T>(ref T data, string _fileName)
 		{
 			defSaveName = _fileName;
-			Debug.Log(SAVE_PATH);
 			LoadGame(SAVE_PATH, ref data);
-			Debug.Log("Loaded");
+			
+			// if data is a TrainingData.TrainingModel
+			if (data is TrainingData.TrainingModel)
+			{
+				TrainingData.TrainingModel model;
+				model = (TrainingData.TrainingModel) Convert.ChangeType(data, typeof(TrainingData.TrainingModel));
+				return model.biases != null && model.weights != null;
+			}
+
+			return true;
 		}
 
 		public void DeleteSave()
@@ -241,13 +251,12 @@ namespace SaveLoad
 				{
 					json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(json));
 				}
-				return JsonConvert.DeserializeObject<T>(json, jsonSettings);
+
+				return json.Length < 10 ? default : JsonConvert.DeserializeObject<T>(json, jsonSettings);
 			}
-			else
-			{
-				Debug.LogError($"File {path} not found");
-				return default;
-			}
+			
+			return default;
+			
 		}
 		
 		public bool SaveFileExists()
