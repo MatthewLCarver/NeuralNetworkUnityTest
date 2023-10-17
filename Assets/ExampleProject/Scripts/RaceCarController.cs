@@ -94,7 +94,7 @@ public class RaceCarController : MonoBehaviour
     /// Sets the starting position and rotation of the car, gets a reference to the TrainableAgent,
     /// and sets the sensor count before training the car.
     /// </summary>
-    private void Awake()
+    private void OnEnable()
     {
         InitialiseRaceCar();
     }
@@ -126,7 +126,7 @@ public class RaceCarController : MonoBehaviour
     /// </summary>
     private void OnDestroy()
     {
-        Reset();
+        //Reset();
         ta.CeaseTraining();
     }
     
@@ -135,7 +135,7 @@ public class RaceCarController : MonoBehaviour
     /// </summary>
     private void OnDisable()
     {
-        Reset();
+        //Reset();
         ta.CeaseTraining();
     }
 
@@ -156,10 +156,10 @@ public class RaceCarController : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
-        //if (!ta || output == null || output.Length != ta.GetOutput().Length)
-        //{
+        if (!ta)
+        {
             InitialiseRaceCar();
-        //}
+        }
 
         sensors = ta.GetInputSensorArray();
         
@@ -168,7 +168,7 @@ public class RaceCarController : MonoBehaviour
         ta.SetCurrentTime(timeSinceStart);
         if (timeSinceStart > 3)
         {
-            if (output == null || output.Length != ta.GetOutput().Length)
+            if (output == null || (output.Length != ta.GetOutput().Length) && ta.GetOutput().Length > 0)
                 output = new float[ta.GetOutput().Length];
             
             output = ta.GetOutput();

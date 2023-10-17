@@ -173,8 +173,6 @@ namespace NeuralNet
 		{
 			if (other.gameObject.CompareTag("Obstacle"))
 			{
-
-				Debug.Log(other.gameObject.name);
 				if (isToBeSaved)
 				{
 					trainingData.SaveTrainingData();

@@ -30,9 +30,11 @@ public class MenuManager : MonoBehaviour
 
     public void Restart()
     {
-        trainingData.ResetTrainingData();
+        //trainingData.ResetTrainingData();
         
-        SceneLoader.Instance.LoadPreviousScene();
+        Application.LoadLevel(0);
+        
+        //SceneLoader.Instance.LoadPreviousScene();
     }
 
     /// <summary>
