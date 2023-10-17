@@ -94,7 +94,7 @@ public class RaceCarController : MonoBehaviour
     /// Sets the starting position and rotation of the car, gets a reference to the TrainableAgent,
     /// and sets the sensor count before training the car.
     /// </summary>
-    private void OnEnable()
+    private void Start()
     {
         InitialiseRaceCar();
     }
@@ -113,14 +113,7 @@ public class RaceCarController : MonoBehaviour
 
         ta.Train();
     }
-
-    /// <summary>
-    /// Accessor variable to disable this script
-    /// </summary>
-    public void DisableScript()
-    {
-        enabled = false;
-    }
+    
     /// <summary>
     /// Stops the car from training when the car is destroyed.
     /// </summary>
@@ -156,9 +149,10 @@ public class RaceCarController : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
-        if (!ta)
+        if (!ta.GetNeuralNetworkDataValidation())
         {
             InitialiseRaceCar();
+            Application.Quit();
         }
 
         sensors = ta.GetInputSensorArray();

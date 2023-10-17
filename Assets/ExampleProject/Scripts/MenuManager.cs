@@ -7,6 +7,7 @@ using NeuralNet;
 using TMPro;
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
@@ -31,10 +32,23 @@ public class MenuManager : MonoBehaviour
     public void Restart()
     {
         //trainingData.ResetTrainingData();
+        Time.timeScale = 1f;
         
-        Application.LoadLevel(0);
-        
-        //SceneLoader.Instance.LoadPreviousScene();
+        #if UNITY_EDITOR
+        #else
+            System.Diagnostics.Process.Start(Application.dataPath + "/../NeuralNetwork.exe");
+        #endif
+            StartCoroutine(QuitDelay());
+    }
+
+    private IEnumerator QuitDelay()
+    {
+        yield return new WaitForSeconds(.5f);
+        #if UNITY_EDITOR
+            SceneLoader.Instance.LoadPreviousScene();
+        #else
+            Application.Quit();
+        #endif
     }
 
     /// <summary>

@@ -690,5 +690,11 @@ namespace NeuralNet
 		{
 			trainingData.LoadFromFileName(_fileName);
 		}
+
+		public bool GetNeuralNetworkDataValidation()
+		{
+			return neuralNetwork.ValidateData();
+		}
+		
 	}
 }

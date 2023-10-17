@@ -951,7 +951,7 @@ namespace NeuralNet
         /// Validate the data to make sure it is not null
         /// </summary>
         /// <returns></returns>
-        private bool ValidateData()
+        public bool ValidateData()
         {
             // Check if the input layer is null
             if (inputLayer == null)
