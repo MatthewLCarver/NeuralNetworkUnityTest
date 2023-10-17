@@ -18,11 +18,17 @@ public class PlayerCarController : MonoBehaviour
     /// </summary>
     private float hor = 0;
 
+    private float time;
+    private float timeSinceStart;
+
     /// <summary>
     /// Listens for input and moves the car accordingly, applying drag to the car.
     /// </summary>
     void FixedUpdate()
     {
+        time += Time.deltaTime;
+        if (time < 3) return;
+
         if (Input.GetKey(KeyCode.W))
         {
             // set vert to lerp up to 1.0f

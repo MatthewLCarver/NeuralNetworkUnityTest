@@ -113,7 +113,7 @@ namespace NeuralNet
         /// <summary>
         /// A thread that runs the neural network in the background for efficiency and performance.
         /// </summary>
-        private Thread networkThread = null;
+        private List<Thread> networkThread = new List<Thread>();
         
         /// <summary>
         /// A bool to control whether the neural network is active or not.
@@ -229,7 +229,7 @@ namespace NeuralNet
         /// </summary>
         private void InitialiseThread()
         {
-            networkThread = new Thread(RunNetwork);
+            networkThread.Add(new Thread(RunNetwork));
         }
 
         /// <summary>
@@ -238,7 +238,8 @@ namespace NeuralNet
         public void StartThreading()
         {
             InitialiseThread();
-            networkThread.Start();
+            if(!networkThread[networkThread.Count-1].IsAlive)
+                networkThread[networkThread.Count-1].Start();
         }
 
         /// <summary>
@@ -246,7 +247,8 @@ namespace NeuralNet
         /// </summary>
         public void StopThreading()
         {
-            networkThread.Abort();
+            if(networkThread[networkThread.Count-1].IsAlive)
+                networkThread[networkThread.Count-1].Abort();
         }
         
         /// <summary>
@@ -822,8 +824,8 @@ namespace NeuralNet
                     {
                         hiddenLayers[layerAdjustment][0, i] = 
                             GetActivationMethod(((inputLayer * 
-                                                  weights[layerAdjustment])[0, i] + 
-                                                 biases[layerAdjustment][0, i]));
+                                                  weights[layerAdjustment])[0, i]) + 
+                                                 biases[layerAdjustment][0, i]);
                     }
                     break;
                 
@@ -845,7 +847,6 @@ namespace NeuralNet
                                                  biases[layerAdjustment][0, i]));
                     }
                     break;
-                    
             }
         }
 

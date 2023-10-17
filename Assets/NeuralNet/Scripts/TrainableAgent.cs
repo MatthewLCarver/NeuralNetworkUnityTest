@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Unity.VisualScripting;
-
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 
 namespace NeuralNet
 {
@@ -174,15 +171,21 @@ namespace NeuralNet
 		/// <param name="other"></param>
 		private void OnCollisionEnter(Collision other)
 		{
-			if (isToBeSaved)
-         	{
-         		trainingData.SaveTrainingData();
-         		isToBeSaved = false;
-         	}
-			currentFitness = 0f;
-			ResetFitnessParameters();
+			if (other.gameObject.CompareTag("Obstacle"))
+			{
 
-			resetAgentEvent?.Invoke();
+				Debug.Log(other.gameObject.name);
+				if (isToBeSaved)
+				{
+					trainingData.SaveTrainingData();
+					isToBeSaved = false;
+				}
+
+				currentFitness = 0f;
+				ResetFitnessParameters();
+
+				resetAgentEvent?.Invoke();
+			}
 		}
 
 		/// <summary>
@@ -251,6 +254,7 @@ namespace NeuralNet
 			if(trainingData.IsTrainingDataEmpty())
 			{
 				trainingData.ResetTrainingData();
+				
 				neuralNetwork.Initialise(neuralNetData);
 				trainingData.SetTrainingData(neuralNetwork.GetTrainingData(), bestFitness, this);
 			}
@@ -294,6 +298,11 @@ namespace NeuralNet
 		{
 			neuralNetwork.StopThreading();
 			neuralNetwork.SetNetworkActive(false);
+		}
+
+		public void ResetTrainingData()
+		{
+			trainingData.ResetTrainingData();
 		}
 
 		/// <summary>

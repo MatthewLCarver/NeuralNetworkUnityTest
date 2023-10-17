@@ -240,6 +240,8 @@ namespace NeuralNet
         
         public bool ConfirmLoadTrainingData()
         {
+            if(!SaveLoadManager.Instance) return false;
+            if(!SaveLoadManager.Instance.SaveFileExists()) return false;
             if(!SaveLoadManager.Instance.Load(ref trainingModel, fileName)) return false;
             
             ConvertTrainingModelToTrainingData();

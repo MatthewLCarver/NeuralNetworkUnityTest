@@ -97,7 +97,8 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: b95f7957d2a9ae149a258575853b4554,
+    type: 2}
   m_LightingSettings: {fileID: 4890085278179872738, guid: d6794883f21118342a228881310ac712,
     type: 2}
 --- !u!196 &4
@@ -934,6 +935,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   noTrainingModelText: {fileID: 0}
+  isRacingScene: 0
+  LoadModelButton: {fileID: 0}
+  PlayModelButton: {fileID: 0}
+  TrainModelButton: {fileID: 0}
+  trainingData: {fileID: 0}
 --- !u!114 &947592136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2279,7 +2285,7 @@ PrefabInstance:
     - target: {fileID: 3139528345533095609, guid: 1fcfd4c11e372d74980cd90afa27391e,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 3139528345533095609, guid: 1fcfd4c11e372d74980cd90afa27391e,
         type: 3}
@@ -2389,6 +2395,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3156128432400611663, guid: a33ab76b6728ce546b013f1e95db38fd,
+        type: 3}
+      propertyPath: totalEpochs
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3156128432400611663, guid: a33ab76b6728ce546b013f1e95db38fd,
+        type: 3}
+      propertyPath: activationType
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a33ab76b6728ce546b013f1e95db38fd, type: 3}

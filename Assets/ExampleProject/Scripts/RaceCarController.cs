@@ -96,11 +96,18 @@ public class RaceCarController : MonoBehaviour
     /// </summary>
     private void Awake()
     {
+        InitialiseRaceCar();
+    }
+
+    private void InitialiseRaceCar()
+    {
         startPosition = transform.position;
         startRotation = transform.eulerAngles;
         
         ta = GetComponent<TrainableAgent>();
 
+        ta.Initialise();
+        
         sensorCount = ta.GetInputs();
         sensors = new float[sensorCount];
 
@@ -149,13 +156,23 @@ public class RaceCarController : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
+        //if (!ta || output == null || output.Length != ta.GetOutput().Length)
+        //{
+            InitialiseRaceCar();
+        //}
+
         sensors = ta.GetInputSensorArray();
         
         time += Time.deltaTime;
         timeSinceStart += Time.deltaTime;
         ta.SetCurrentTime(timeSinceStart);
-        if(timeSinceStart > 1)
+        if (timeSinceStart > 3)
+        {
+            if (output == null || output.Length != ta.GetOutput().Length)
+                output = new float[ta.GetOutput().Length];
+            
             output = ta.GetOutput();
+        }
         
         if (time >= trainingTimeInterval)
         {
@@ -187,6 +204,8 @@ public class RaceCarController : MonoBehaviour
         transform.position = startPosition;
         transform.eulerAngles = startRotation;
         
+        ta.IncrementEpoch();
+
         ta.Initialise();
         
         ta.Train();

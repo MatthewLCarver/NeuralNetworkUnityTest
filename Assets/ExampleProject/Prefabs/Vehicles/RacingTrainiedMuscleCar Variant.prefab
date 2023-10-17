@@ -24,7 +24,7 @@ PrefabInstance:
     - target: {fileID: 3139528345533095609, guid: 1fcfd4c11e372d74980cd90afa27391e,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 74.831
       objectReference: {fileID: 0}
     - target: {fileID: 3139528345533095609, guid: 1fcfd4c11e372d74980cd90afa27391e,
         type: 3}
@@ -34,12 +34,12 @@ PrefabInstance:
     - target: {fileID: 3139528345533095609, guid: 1fcfd4c11e372d74980cd90afa27391e,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -45.958
       objectReference: {fileID: 0}
     - target: {fileID: 3139528345533095609, guid: 1fcfd4c11e372d74980cd90afa27391e,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.04523222
+      value: 0.043619502
       objectReference: {fileID: 0}
     - target: {fileID: 3139528345533095609, guid: 1fcfd4c11e372d74980cd90afa27391e,
         type: 3}
@@ -49,7 +49,7 @@ PrefabInstance:
     - target: {fileID: 3139528345533095609, guid: 1fcfd4c11e372d74980cd90afa27391e,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.9989765
+      value: -0.99904823
       objectReference: {fileID: 0}
     - target: {fileID: 3139528345533095609, guid: 1fcfd4c11e372d74980cd90afa27391e,
         type: 3}
@@ -64,7 +64,7 @@ PrefabInstance:
     - target: {fileID: 3139528345533095609, guid: 1fcfd4c11e372d74980cd90afa27391e,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -174.815
+      value: -175
       objectReference: {fileID: 0}
     - target: {fileID: 3139528345533095609, guid: 1fcfd4c11e372d74980cd90afa27391e,
         type: 3}
@@ -92,9 +92,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c2896ece4f3c4747836cad25ba72d67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4.5
+  speed: 9
   acceleration: 0
   turningValue: 0
   timeSinceStart: 0
   sensorCount: 0
   trainingTimeInterval: 0
+--- !u!114 &1253567855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8562439108735229660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbfbf3782d5bf4e43ac18944a881934a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  winText: You Lose!
+  winTextUI: {fileID: 0}

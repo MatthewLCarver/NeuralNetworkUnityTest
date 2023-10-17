@@ -103,6 +103,8 @@ public class CarController : MonoBehaviour
         
         ta.resetAgentEvent.AddListener(Reset);
         
+        ta.Initialise();
+        
         ta.Train();
     }
 
@@ -111,7 +113,8 @@ public class CarController : MonoBehaviour
     /// </summary>
     private void OnDestroy()
     {
-        ta.CeaseTraining();
+        Reset();
+        //ta.CeaseTraining();
     }
     
     /// <summary>
@@ -119,7 +122,8 @@ public class CarController : MonoBehaviour
     /// </summary>
     private void OnDisable()
     {
-        ta.CeaseTraining();
+        Reset();
+        //ta.CeaseTraining();
     }
 
     /// <summary>
@@ -127,6 +131,7 @@ public class CarController : MonoBehaviour
     /// </summary>
     private void OnApplicationQuit()
     {
+        Reset();
         ta.CeaseTraining();
     }
 
