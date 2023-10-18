@@ -19,7 +19,7 @@ public class MenuManager : MonoBehaviour
 
     [SerializeField] private Button LoadModelButton; 
     [SerializeField] private Button PlayModelButton; 
-    [SerializeField] private Button TrainModelButton;
+    [SerializeField] private Button[] DifficultyButtons;
 
     [SerializeField] private TrainingData trainingData;
 
@@ -65,6 +65,19 @@ public class MenuManager : MonoBehaviour
     {
         if(_button)
             _button.interactable = true;
+    }
+
+    public void DifficultyButton(string _difficultyString)
+    {
+        SaveLoadManager.Instance.SetSaveName(_difficultyString);
+        trainingData.SetFileName(_difficultyString);
+    }
+    public void DisableDifficultyButtons()
+    {
+        foreach (Button difficultyButton in DifficultyButtons)
+        {
+            DisableButton(difficultyButton);
+        }
     }
 
     public void UpdateNoTrainingDataText()

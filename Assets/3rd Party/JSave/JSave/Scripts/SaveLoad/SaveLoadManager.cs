@@ -153,6 +153,11 @@ namespace SaveLoad
 			return null;
 		}
 
+		public void SetSaveName(string _newSaveName)
+		{
+			defSaveName = _newSaveName;
+		}
+
 		[ContextMenu("Save")]
 		public void Save()
 		{

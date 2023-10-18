@@ -247,6 +247,16 @@ namespace NeuralNet
             ConvertTrainingModelToTrainingData();
             return true;
         }
+        
+        public bool ConfirmLoadTrainingData(string _fileName)
+        {
+            if(!SaveLoadManager.Instance) return false;
+            if(!SaveLoadManager.Instance.SaveFileExists()) return false;
+            if(!SaveLoadManager.Instance.Load(ref trainingModel, _fileName)) return false;
+            
+            ConvertTrainingModelToTrainingData();
+            return true;
+        }
 
         /// <summary>
         /// Converts the training model to training data for use in the neural network.
