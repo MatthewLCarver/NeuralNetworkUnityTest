@@ -135,6 +135,11 @@ public class CarController : MonoBehaviour
         ta.CeaseTraining();
     }
 
+    public void StopAgent()
+    {
+        ta.ResetAgent();
+    }
+
     /// <summary>
     /// Get the sensor array from the TrainableAgent's input sensor array, and the output array to the
     /// TrainableAgent's output array.

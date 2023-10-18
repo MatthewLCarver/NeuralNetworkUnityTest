@@ -21091,7 +21091,7 @@ MonoBehaviour:
   isRacingScene: 1
   LoadModelButton: {fileID: 0}
   PlayModelButton: {fileID: 0}
-  TrainModelButton: {fileID: 0}
+  DifficultyButtons: []
   trainingData: {fileID: 11400000, guid: 00b15b6e372611e49b35bdf596206924, type: 2}
 --- !u!1 &1091375098
 GameObject:
@@ -30607,6 +30607,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -4614424104730551726, guid: 6c6f5f4c35d33bf409080d8e684bce15,
+        type: 3}
+      propertyPath: speed
+      value: 9.5
+      objectReference: {fileID: 0}
     - target: {fileID: 1253567855, guid: 6c6f5f4c35d33bf409080d8e684bce15, type: 3}
       propertyPath: winTextUI
       value: 

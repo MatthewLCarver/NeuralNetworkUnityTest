@@ -957,18 +957,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 652484968}
   m_Mesh: {fileID: 4300008, guid: db57e923d75cb6c4e936d5e8caaa9165, type: 3}
---- !u!114 &664209707 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8126859974583378032, guid: e4241e286b3e75144bd85fe14fb3d99d,
-    type: 3}
-  m_PrefabInstance: {fileID: 4809598478224186857}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &755827087
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1237,18 +1225,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 778364122}
   m_Mesh: {fileID: 4300008, guid: db57e923d75cb6c4e936d5e8caaa9165, type: 3}
---- !u!114 &806551956 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6866897357517270125, guid: e4241e286b3e75144bd85fe14fb3d99d,
-    type: 3}
-  m_PrefabInstance: {fileID: 4809598478224186857}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1089221873 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6882654756118682775, guid: 82e314e2768366a46ae56e48e8fc15b5,
@@ -1630,18 +1606,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 82e314e2768366a46ae56e48e8fc15b5, type: 3}
---- !u!114 &1574260976 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1336758800110463086, guid: e4241e286b3e75144bd85fe14fb3d99d,
-    type: 3}
-  m_PrefabInstance: {fileID: 4809598478224186857}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1798213381 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3156128432400611663, guid: a33ab76b6728ce546b013f1e95db38fd,
@@ -1661,21 +1625,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1336758800110463086, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1336758800110463086, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: DifficultyButton
-      objectReference: {fileID: 0}
-    - target: {fileID: 1336758800110463086, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: Medium
-      objectReference: {fileID: 0}
     - target: {fileID: 1665220549817819141, guid: e4241e286b3e75144bd85fe14fb3d99d,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -1735,62 +1684,12 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3872998041295738404, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_Name
-      value: Easy
-      objectReference: {fileID: 0}
-    - target: {fileID: 4809598476797613425, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4809598476797613425, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4809598476797613425, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[4].m_Mode
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4809598476797613425, guid: e4241e286b3e75144bd85fe14fb3d99d,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1089221874}
-    - target: {fileID: 4809598476797613425, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[4].m_Target
-      value: 
-      objectReference: {fileID: 1189575274}
-    - target: {fileID: 4809598476797613425, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[4].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4809598476797613425, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Load
-      objectReference: {fileID: 0}
-    - target: {fileID: 4809598476797613425, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[4].m_MethodName
-      value: DisableDifficultyButtons
-      objectReference: {fileID: 0}
-    - target: {fileID: 4809598476797613425, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[4].m_TargetAssemblyTypeName
-      value: MenuManager, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 4809598476797613425, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[4].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
     - target: {fileID: 4809598476797613439, guid: e4241e286b3e75144bd85fe14fb3d99d,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -1886,37 +1785,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: MainMenuUI
       objectReference: {fileID: 0}
-    - target: {fileID: 4809598477552377590, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: trainingData
-      value: 
-      objectReference: {fileID: 11400000, guid: 00b15b6e372611e49b35bdf596206924,
-        type: 2}
-    - target: {fileID: 4809598477552377590, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: TrainModelButton
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4809598477552377590, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: DifficultyButtons.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4809598477552377590, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: DifficultyButtons.Array.data[0]
-      value: 
-      objectReference: {fileID: 806551956}
-    - target: {fileID: 4809598477552377590, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: DifficultyButtons.Array.data[1]
-      value: 
-      objectReference: {fileID: 1574260976}
-    - target: {fileID: 4809598477552377590, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: DifficultyButtons.Array.data[2]
-      value: 
-      objectReference: {fileID: 664209707}
     - target: {fileID: 4809598477552377591, guid: e4241e286b3e75144bd85fe14fb3d99d,
         type: 3}
       propertyPath: m_Pivot.x
@@ -2081,46 +1949,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6401598852025078193, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_Name
-      value: Medium
-      objectReference: {fileID: 0}
-    - target: {fileID: 6866897357517270125, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6866897357517270125, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: DifficultyButton
-      objectReference: {fileID: 0}
-    - target: {fileID: 6866897357517270125, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: Easy
-      objectReference: {fileID: 0}
-    - target: {fileID: 8126859974583378032, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8126859974583378032, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: DifficultyButton
-      objectReference: {fileID: 0}
-    - target: {fileID: 8126859974583378032, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: Hard
-      objectReference: {fileID: 0}
-    - target: {fileID: 8153359742443189337, guid: e4241e286b3e75144bd85fe14fb3d99d,
-        type: 3}
-      propertyPath: m_Name
-      value: Hard
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e4241e286b3e75144bd85fe14fb3d99d, type: 3}

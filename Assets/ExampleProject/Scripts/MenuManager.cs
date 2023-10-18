@@ -92,6 +92,10 @@ public class MenuManager : MonoBehaviour
         yield return new WaitForSeconds(.1f);
         DisableButton(PlayModelButton);
         EnableButton(LoadModelButton);
+        foreach (Button difficultyButton in DifficultyButtons)
+        {
+            EnableButton(difficultyButton);
+        }
     }
 
     /// <summary>

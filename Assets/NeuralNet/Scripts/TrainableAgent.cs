@@ -173,16 +173,26 @@ namespace NeuralNet
 		{
 			if (other.gameObject.CompareTag("Obstacle"))
 			{
-				if (isToBeSaved)
-				{
-					trainingData.SaveTrainingData();
-					isToBeSaved = false;
-				}
+				ResetAgent();
+			}
+		}
 
-				currentFitness = 0f;
-				ResetFitnessParameters();
+		public void ResetAgent()
+		{
+			CheckSaveDataSet();
 
-				resetAgentEvent?.Invoke();
+			currentFitness = 0f;
+			ResetFitnessParameters();
+
+			resetAgentEvent?.Invoke();
+		}
+
+		private void CheckSaveDataSet()
+		{
+			if (isToBeSaved)
+			{
+				trainingData.SaveTrainingData();
+				isToBeSaved = false;
 			}
 		}
 
